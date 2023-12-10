@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="你的 web 服务器不过是我的文件管理器罢了 :-\  1 什么是路径穿越路径穿越，path-traversal，也称为路径遍历、目录穿越&#x2F;遍历（directory traversal），是一种能让攻击者通过使用一些类似 ..&#x2F; 的目录控制序列访问 web 服务器上任意文件的安全漏洞。 任意文件主要包括：  程序源码和数据 服务端证书 敏感的系统文件，&#x2F;etc&#x2F;passwd  path">
+<meta property="og:type" content="article">
+<meta property="og:title" content="路径穿越基础介绍">
+<meta property="og:url" content="http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="OhMyDarkSpace">
+<meta property="og:description" content="你的 web 服务器不过是我的文件管理器罢了 :-\  1 什么是路径穿越路径穿越，path-traversal，也称为路径遍历、目录穿越&#x2F;遍历（directory traversal），是一种能让攻击者通过使用一些类似 ..&#x2F; 的目录控制序列访问 web 服务器上任意文件的安全漏洞。 任意文件主要包括：  程序源码和数据 服务端证书 敏感的系统文件，&#x2F;etc&#x2F;passwd  path">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231209110748.png">
+<meta property="og:image" content="http://example.com/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231209110859.png">
+<meta property="og:image" content="http://example.com/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231209111405.png">
+<meta property="og:image" content="http://example.com/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231206224112.png">
+<meta property="og:image" content="http://example.com/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231207222507.png">
+<meta property="og:image" content="http://example.com/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231209113640.png">
+<meta property="og:image" content="http://example.com/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231209122622.png">
+<meta property="article:published_time" content="2023-12-10T02:32:06.000Z">
+<meta property="article:modified_time" content="2023-12-10T02:33:21.436Z">
+<meta property="article:author" content="CaiShao">
+<meta property="article:tag" content="web">
+<meta property="article:tag" content="owaspTop10">
+<meta property="article:tag" content="path-traversal">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231209110748.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>路径穿越基础介绍</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="OhMyDarkSpace" type="application/atom+xml">
+<link rel="alternate" href="/rss2.xml" title="OhMyDarkSpace" type="application/rss+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/12/09/hello-world/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&text=路径穿越基础介绍"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&is_video=false&description=路径穿越基础介绍"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=路径穿越基础介绍&body=Check out this article: http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&name=路径穿越基础介绍&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&t=路径穿越基础介绍"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A"><span class="toc-number">1.</span> <span class="toc-text">1 什么是路径穿越</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%B5%8B%E8%AF%95%E6%96%B9%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">2 测试方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E4%B8%8D%E5%90%8COS%E7%9A%84%E6%95%8F%E6%84%9F%E6%96%87%E4%BB%B6%E4%BD%8D%E7%BD%AE"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 不同OS的敏感文件位置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E4%B8%BE%E4%B8%AA%E6%A0%97%E5%AD%90"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 举个栗子</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%B8%B8%E8%A7%84%E9%98%B2%E5%BE%A1%E4%B8%8E%E7%BB%95%E8%BF%87"><span class="toc-number">3.</span> <span class="toc-text">3 常规防御与绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E4%BD%BF%E7%94%A8%E7%BB%9D%E5%AF%B9%E8%B7%AF%E5%BE%84"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 使用绝对路径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E5%8F%8C%E5%86%99%E7%BB%95%E8%BF%87"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 双写绕过</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E7%BC%96%E7%A0%81%E7%BB%95%E8%BF%87"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 编码绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-1-URL-%E7%BC%96%E7%A0%81-%E4%B8%8E-double-URL-%E7%BC%96%E7%A0%81"><span class="toc-number">3.3.1.</span> <span class="toc-text">3.3.1 URL 编码 与 double URL 编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-2-unicode-%E7%BC%96%E7%A0%81"><span class="toc-number">3.3.2.</span> <span class="toc-text">3.3.2 unicode 编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-3-%E5%85%B6%E4%BB%96%E9%9D%9E%E6%A0%87%E5%87%86%E7%BC%96%E7%A0%81"><span class="toc-number">3.3.3.</span> <span class="toc-text">3.3.3 其他非标准编码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E5%85%B6%E4%BB%96%E7%BB%95%E8%BF%87%E6%96%B9%E5%BC%8F"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 其他绕过方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-1-00-%E6%88%AA%E6%96%AD"><span class="toc-number">3.4.1.</span> <span class="toc-text">3.4.1 %00 截断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-2-%E5%BF%85%E9%A1%BB%E5%8C%85%E5%90%AB%E6%9F%90%E4%BA%9B%E8%B7%AF%E5%BE%84"><span class="toc-number">3.4.2.</span> <span class="toc-text">3.4.2 必须包含某些路径</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E9%98%B2%E5%BE%A1%E6%89%8B%E6%AE%B5"><span class="toc-number">4.</span> <span class="toc-text">4 防御手段</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E5%B7%A5%E5%85%B7"><span class="toc-number">5.</span> <span class="toc-text">5 工具</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">6.</span> <span class="toc-text">6 参考链接</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        路径穿越基础介绍
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">CaiShao</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-12-10T02:32:06.000Z" class="dt-published" itemprop="datePublished">2023-12-10</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/owaspTop10/" rel="tag">owaspTop10</a>, <a class="p-category" href="/tags/path-traversal/" rel="tag">path-traversal</a>, <a class="p-category" href="/tags/web/" rel="tag">web</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>你的 web 服务器不过是我的文件管理器罢了 :-\</p>
+</blockquote>
+<h1 id="1-什么是路径穿越"><a href="#1-什么是路径穿越" class="headerlink" title="1 什么是路径穿越"></a>1 什么是路径穿越</h1><p>路径穿越，path-traversal，也称为路径遍历、目录穿越&#x2F;遍历（directory traversal），是一种能让攻击者通过使用一些类似 <code>../</code> 的<strong>目录控制序列</strong>访问 web 服务器上<strong>任意文件</strong>的安全漏洞。</p>
+<p>任意文件主要包括：</p>
+<ul>
+<li>程序源码和数据</li>
+<li>服务端证书</li>
+<li>敏感的系统文件，<code>/etc/passwd</code></li>
+</ul>
+<p>path-traversal 被 OWASP 收录的 Broken Access Control（BAC，越权访问）一栏，BAC 可是 <a target="_blank" rel="noopener" href="https://owasp.org/www-project-top-ten/">OWASP Top 10</a> 2021 版中的 No.1 哦。</p>
+<h1 id="2-测试方法"><a href="#2-测试方法" class="headerlink" title="2 测试方法"></a>2 测试方法</h1><p>寻找路径穿越漏洞分两步：</p>
+<ol>
+<li>输入向量枚举，定位注入点。</li>
+<li>测试，绕过</li>
+</ol>
+<h2 id="2-1-不同OS的敏感文件位置"><a href="#2-1-不同OS的敏感文件位置" class="headerlink" title="2.1 不同OS的敏感文件位置"></a>2.1 不同OS的敏感文件位置</h2><p>需要了解 <strong>web app 服务端的架构、操作系统及其文件管理方式</strong>，就算存在路径穿越但你不知道你想要的文件放哪就尴尬了。</p>
+<ul>
+<li>Unix-like OS:<ul>
+<li>root directory: <code>/</code></li>
+<li>directory separator: <code>/</code></li>
+<li>网站根目录：<code>/var/www/</code>, <code>/var/www/images/</code></li>
+<li>常用 payload: <code>../../../etc/passwd</code></li>
+</ul>
+</li>
+<li>Windows OS:<ul>
+<li>root directory: <code>&lt;drive letter&gt;:</code></li>
+<li>directory separator: <code>\</code> or <code>/</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="2-2-举个栗子"><a href="#2-2-举个栗子" class="headerlink" title="2.2 举个栗子"></a>2.2 举个栗子</h2><p>以 PortSwigger Labs 中的一个简单<a target="_blank" rel="noopener" href="https://portswigger.net/web-security/file-path-traversal/lab-simple">例子</a>进行说明：</p>
+<p>开启 burp 再打开一个页面。</p>
+<p><img src="/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231209110748.png"></p>
+<p>观察 HTTP history，找到一个 GET 图片文件的请求，这里可能存在路径穿越。（一堆 google 自动发的包，裂开</p>
+<p>这里能直接看到一个访问请求，我就不枚举用户输入向量了，一般情况要要测试用户所有可能的输入向量，包括 GET 和 POST 等请求。</p>
+<p><img src="/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231209110859.png"></p>
+<p>网页源码里面也能看到。</p>
+<p><img src="/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231209111405.png"></p>
+<p>发送到 Repeater 重放，测试。</p>
+<p><img src="/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231206224112.png"></p>
+<p>得到的响应报文如下，可以看到已经拿到了 <code>/etc/passwd</code> 的内容了。</p>
+<p><img src="/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231207222507.png"></p>
+<h1 id="3-常规防御与绕过"><a href="#3-常规防御与绕过" class="headerlink" title="3 常规防御与绕过"></a>3 常规防御与绕过</h1><h2 id="3-1-使用绝对路径"><a href="#3-1-使用绝对路径" class="headerlink" title="3.1 使用绝对路径"></a>3.1 使用绝对路径</h2><p>删掉所有目录遍历序列，如 <code>../</code> 等 <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/file-path-traversal/lab-absolute-path-bypass">no case, no learning</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">filename=/etc/passwd</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-双写绕过"><a href="#3-2-双写绕过" class="headerlink" title="3.2 双写绕过"></a>3.2 双写绕过</h2><p>仅将 <code>../</code> 替换为空，未对替换处理后的 filename 进行二次检查(non-recursively) <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/file-path-traversal/lab-sequences-stripped-non-recursively">no case, no learning</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">filename=....//..././..././etc/passwd</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-3-编码绕过"><a href="#3-3-编码绕过" class="headerlink" title="3.3 编码绕过"></a>3.3 编码绕过</h2><p>先放一个好用的编码工具：<a target="_blank" rel="noopener" href="https://gchq.github.io/CyberChef/">CyberChef</a>。</p>
+<p><img src="/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231209113640.png"></p>
+<h3 id="3-3-1-URL-编码-与-double-URL-编码"><a href="#3-3-1-URL-编码-与-double-URL-编码" class="headerlink" title="3.3.1 URL 编码 与 double URL 编码"></a>3.3.1 URL 编码 与 double URL 编码</h3><p><code>../</code> 和 <code>..\</code> 各个部分url 编码的排列组合，我简单列几个。</p>
+<ul>
+<li>%2E%2E%2F –&gt; ..&#x2F;</li>
+<li>%2E%2E&#x2F; –&gt; ..&#x2F;</li>
+<li>..%2F –&gt; ..&#x2F;</li>
+<li>%252E%252E%252F</li>
+<li>..%5C –&gt; ..\</li>
+<li>%2E%2E%5C –&gt; ..\</li>
+<li>%252E%252E%255C –&gt; ..\</li>
+</ul>
+<h3 id="3-3-2-unicode-编码"><a href="#3-3-2-unicode-编码" class="headerlink" title="3.3.2 unicode 编码"></a>3.3.2 unicode 编码</h3><p><img src="/assets%5C%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D%5CPasted-image-20231209122622.png"></p>
+<ul>
+<li>\u002E\u002E\u002F –&gt; ..&#x2F;</li>
+<li>\u002E\u002E\u005C –&gt; ..\</li>
+</ul>
+<h3 id="3-3-3-其他非标准编码"><a href="#3-3-3-其他非标准编码" class="headerlink" title="3.3.3 其他非标准编码"></a>3.3.3 其他非标准编码</h3><ul>
+<li>..%c0%af</li>
+<li>..%ef%bc%8f</li>
+</ul>
+<h2 id="3-4-其他绕过方式"><a href="#3-4-其他绕过方式" class="headerlink" title="3.4 其他绕过方式"></a>3.4 其他绕过方式</h2><h3 id="3-4-1-00-截断"><a href="#3-4-1-00-截断" class="headerlink" title="3.4.1 %00 截断"></a>3.4.1 %00 截断</h3><p>某些情况下 web app 会验证文件的扩展名，如必须以 <code>.png</code> 结尾等。如果简单构造 <code>filename=../../../etc/passwd.png</code> 显然无法拿到我们想要的文件。</p>
+<p>而截断机制既能绕过输入有效性验证，又能在解析文件时拿到我们想要的文件。 <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/file-path-traversal/lab-validate-file-extension-null-byte-bypass">no case, no learning</a></p>
+<p>%00 截断：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">filename=../../../etc/passwd%00.jpg</span><br></pre></td></tr></table></figure>
+
+<p>#todo</p>
+<ul>
+<li><input disabled="" type="checkbox"> 调研其他截断机制？</li>
+</ul>
+<h3 id="3-4-2-必须包含某些路径"><a href="#3-4-2-必须包含某些路径" class="headerlink" title="3.4.2 必须包含某些路径"></a>3.4.2 必须包含某些路径</h3><p>有些 web app 要求文件名中必须包含某些特定的目录 (base folder)，这时我们仍可以使用 <code>../</code> 拿到我们想要的内容。<a target="_blank" rel="noopener" href="https://portswigger.net/web-security/file-path-traversal/lab-validate-start-of-path">no case, no learning</a> </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">filename=/var/www/images/../../../etc/passwd</span><br></pre></td></tr></table></figure>
+
+<p>#todo </p>
+<ul>
+<li><input disabled="" type="checkbox"> 汇总常见 Payload</li>
+</ul>
+<h1 id="4-防御手段"><a href="#4-防御手段" class="headerlink" title="4 防御手段"></a>4 防御手段</h1><p>最有效的防御方法就是<strong>缩小攻击面</strong>，典型的例子：中国防火墙 Great Firewall。对于路径穿越的防御也同样适用，避免用户与 filesystem APIs 交互能有效减少路径穿越攻击的风险。</p>
+<p>但大部分情况下无法避免用户提供的输入与 filesystem APIs 交互，防御方法如下：</p>
+<ol>
+<li>使用<strong>白名单</strong>对<strong>用户输入</strong>进行验证与过滤</li>
+<li>使用当前操作系统路径规范化函数规范化路径后，进行过滤，最后再进行相关调用</li>
+</ol>
+<h1 id="5-工具"><a href="#5-工具" class="headerlink" title="5 工具"></a>5 工具</h1><p>说实话感觉这玩意手动测试的话也太麻烦了。</p>
+<p>一些常用的工具:</p>
+<ul>
+<li>BurpSuite Intruder 可用这些 <a target="_blank" rel="noopener" href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Directory%20Traversal/Intruder">字典</a> 对其进行配置</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/wireghoul/dotdotpwn">DotDotPwn</a> 好久不更新了呀</li>
+<li><a target="_blank" rel="noopener" href="https://www.zaproxy.org/">OWASP ZAP</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/xmendez/wfuzz">wfuzz</a></li>
+</ul>
+<p>常回来看看：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/swisskyrepo/PayloadsAllTheThings">PayloadsAllTheThings</a></li>
+</ul>
+<h1 id="6-参考链接"><a href="#6-参考链接" class="headerlink" title="6 参考链接"></a>6 参考链接</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/OWASP/wstg/blob/master/document/4-Web_Application_Security_Testing/05-Authorization_Testing/01-Testing_Directory_Traversal_File_Include.md">OWASP wstg path-traversal</a></li>
+<li><a target="_blank" rel="noopener" href="https://portswigger.net/web-security/file-path-traversal">path-traversal by PortSwigger</a></li>
+<li><a target="_blank" rel="noopener" href="https://websec.readthedocs.io/zh/latest/vuln/pathtraversal.html">目录穿越</a></li>
+<li><a target="_blank" rel="noopener" href="https://code.google.com/archive/p/teenage-mutant-ninja-turtles/wikis/AdvancedObfuscationPathtraversal.wiki">Advanced Directory Traversal filter bypassing</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qingzhantianxia/article/details/128204437">路径穿越（Path Traversal）详解</a></li>
+</ul>
+
+  </div>
+</article>
+
+
+    <div class="blog-post-comments">
+        <div id="utterances_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A"><span class="toc-number">1.</span> <span class="toc-text">1 什么是路径穿越</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%B5%8B%E8%AF%95%E6%96%B9%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">2 测试方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E4%B8%8D%E5%90%8COS%E7%9A%84%E6%95%8F%E6%84%9F%E6%96%87%E4%BB%B6%E4%BD%8D%E7%BD%AE"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 不同OS的敏感文件位置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E4%B8%BE%E4%B8%AA%E6%A0%97%E5%AD%90"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 举个栗子</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%B8%B8%E8%A7%84%E9%98%B2%E5%BE%A1%E4%B8%8E%E7%BB%95%E8%BF%87"><span class="toc-number">3.</span> <span class="toc-text">3 常规防御与绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E4%BD%BF%E7%94%A8%E7%BB%9D%E5%AF%B9%E8%B7%AF%E5%BE%84"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 使用绝对路径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E5%8F%8C%E5%86%99%E7%BB%95%E8%BF%87"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 双写绕过</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E7%BC%96%E7%A0%81%E7%BB%95%E8%BF%87"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 编码绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-1-URL-%E7%BC%96%E7%A0%81-%E4%B8%8E-double-URL-%E7%BC%96%E7%A0%81"><span class="toc-number">3.3.1.</span> <span class="toc-text">3.3.1 URL 编码 与 double URL 编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-2-unicode-%E7%BC%96%E7%A0%81"><span class="toc-number">3.3.2.</span> <span class="toc-text">3.3.2 unicode 编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-3-%E5%85%B6%E4%BB%96%E9%9D%9E%E6%A0%87%E5%87%86%E7%BC%96%E7%A0%81"><span class="toc-number">3.3.3.</span> <span class="toc-text">3.3.3 其他非标准编码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-%E5%85%B6%E4%BB%96%E7%BB%95%E8%BF%87%E6%96%B9%E5%BC%8F"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 其他绕过方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-1-00-%E6%88%AA%E6%96%AD"><span class="toc-number">3.4.1.</span> <span class="toc-text">3.4.1 %00 截断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-2-%E5%BF%85%E9%A1%BB%E5%8C%85%E5%90%AB%E6%9F%90%E4%BA%9B%E8%B7%AF%E5%BE%84"><span class="toc-number">3.4.2.</span> <span class="toc-text">3.4.2 必须包含某些路径</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E9%98%B2%E5%BE%A1%E6%89%8B%E6%AE%B5"><span class="toc-number">4.</span> <span class="toc-text">4 防御手段</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E5%B7%A5%E5%85%B7"><span class="toc-number">5.</span> <span class="toc-text">5 工具</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">6.</span> <span class="toc-text">6 参考链接</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&text=路径穿越基础介绍"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&is_video=false&description=路径穿越基础介绍"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=路径穿越基础介绍&body=Check out this article: http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&name=路径穿越基础介绍&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/12/10/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&t=路径穿越基础介绍"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023
+    CaiShao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+    <script type="text/javascript">
+      var utterances_repo = 'BY-musi/BY-musi.github.io';
+      var utterances_issue_term = 'pathname';
+      var utterances_label = 'comment';
+      var utterances_theme = 'photon-dark';
+
+      (function(){
+          var script = document.createElement('script');
+
+          script.src = 'https://utteranc.es/client.js';
+          script.setAttribute('repo', utterances_repo);
+          script.setAttribute('issue-term', 'pathname');
+          script.setAttribute('label', utterances_label);
+          script.setAttribute('theme', utterances_theme);
+          script.setAttribute('crossorigin', 'anonymous');
+          script.async = true;
+          (document.getElementById('utterances_thread')).appendChild(script);
+      }());
+  </script>
+
+</body>
+</html>
