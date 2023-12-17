@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="[!quote]你的 web 服务器不过是我的文件管理器罢了 :-\  1 什么是路径穿越路径穿越，path-traversal，也称为路径遍历、目录穿越&#x2F;遍历（directory traversal），是一种能让攻击者通过使用一些类似 ..&#x2F; 的目录控制序列访问 web 服务器上任意文件的安全漏洞。 任意文件主要包括：  程序源码和数据 服务端证书 敏感的系统文件，&#x2F;etc&#x2F;pass">
+    <meta name="description" content="你的 web 服务器不过是我的文件管理器罢了 :-\  1 什么是路径穿越路径穿越，path-traversal，也称为路径遍历、目录穿越&#x2F;遍历（directory traversal），是一种能让攻击者通过使用一些类似 ..&#x2F; 的目录控制序列访问 web 服务器上任意文件的安全漏洞。 任意文件主要包括：  程序源码和数据 服务端证书 敏感的系统文件，&#x2F;etc&#x2F;passwd  path">
 <meta property="og:type" content="article">
 <meta property="og:title" content="路径穿越基础介绍">
 <meta property="og:url" content="http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/index.html">
 <meta property="og:site_name" content="OhMyDarkSpace">
-<meta property="og:description" content="[!quote]你的 web 服务器不过是我的文件管理器罢了 :-\  1 什么是路径穿越路径穿越，path-traversal，也称为路径遍历、目录穿越&#x2F;遍历（directory traversal），是一种能让攻击者通过使用一些类似 ..&#x2F; 的目录控制序列访问 web 服务器上任意文件的安全漏洞。 任意文件主要包括：  程序源码和数据 服务端证书 敏感的系统文件，&#x2F;etc&#x2F;pass">
+<meta property="og:description" content="你的 web 服务器不过是我的文件管理器罢了 :-\  1 什么是路径穿越路径穿越，path-traversal，也称为路径遍历、目录穿越&#x2F;遍历（directory traversal），是一种能让攻击者通过使用一些类似 ..&#x2F; 的目录控制序列访问 web 服务器上任意文件的安全漏洞。 任意文件主要包括：  程序源码和数据 服务端证书 敏感的系统文件，&#x2F;etc&#x2F;passwd  path">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/images/2023/12/17/Pasted-image-20231209110748.png">
 <meta property="og:image" content="http://example.com/images/2023/12/17/Pasted-image-20231209110859.png">
@@ -21,7 +21,7 @@
 <meta property="og:image" content="http://example.com/images/2023/12/17/Pasted-image-20231209113640.png">
 <meta property="og:image" content="http://example.com/images/2023/12/17/Pasted-image-20231209122622.png">
 <meta property="article:published_time" content="2023-12-16T16:00:00.000Z">
-<meta property="article:modified_time" content="2023-12-17T02:33:21.504Z">
+<meta property="article:modified_time" content="2023-12-17T15:25:16.862Z">
 <meta property="article:author" content="CaiShao">
 <meta property="article:tag" content="web">
 <meta property="article:tag" content="owaspTop10">
@@ -67,6 +67,8 @@
 	<!-- mathjax -->
 	
 
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
   
 <meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="OhMyDarkSpace" type="application/atom+xml">
 <link rel="alternate" href="/rss2.xml" title="OhMyDarkSpace" type="application/rss+xml">
@@ -173,7 +175,7 @@
 
   <div class="content e-content" itemprop="articleBody">
     <blockquote>
-<p>[!quote]<br>你的 web 服务器不过是我的文件管理器罢了 :-\</p>
+<p>你的 web 服务器不过是我的文件管理器罢了 :-\</p>
 </blockquote>
 <h1 id="1-什么是路径穿越"><a href="#1-什么是路径穿越" class="headerlink" title="1 什么是路径穿越"></a>1 什么是路径穿越</h1><p>路径穿越，path-traversal，也称为路径遍历、目录穿越&#x2F;遍历（directory traversal），是一种能让攻击者通过使用一些类似 <code>../</code> 的<strong>目录控制序列</strong>访问 web 服务器上<strong>任意文件</strong>的安全漏洞。</p>
 <p>任意文件主要包括：</p>
@@ -453,6 +455,13 @@
 
 
 <!-- FancyBox -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+  <script>
+    Fancybox.bind('[data-fancybox="gallery"]', {
+      //
+    });    
+  </script>
 
 </body>
 </html>
