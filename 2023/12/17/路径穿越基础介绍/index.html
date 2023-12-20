@@ -9,17 +9,17 @@
     <meta name="description" content="你的 web 服务器不过是我的文件管理器罢了 :-\  1 什么是路径穿越路径穿越，path-traversal，也称为路径遍历、目录穿越&#x2F;遍历（directory traversal），是一种能让攻击者通过使用一些类似 ..&#x2F; 的目录控制序列访问 web 服务器上任意文件的安全漏洞。 任意文件主要包括：  程序源码和数据 服务端证书 敏感的系统文件，&#x2F;etc&#x2F;passwd  path">
 <meta property="og:type" content="article">
 <meta property="og:title" content="路径穿越基础介绍">
-<meta property="og:url" content="http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:url" content="https://by-musi.github.io/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/index.html">
 <meta property="og:site_name" content="OhMyDarkSpace">
 <meta property="og:description" content="你的 web 服务器不过是我的文件管理器罢了 :-\  1 什么是路径穿越路径穿越，path-traversal，也称为路径遍历、目录穿越&#x2F;遍历（directory traversal），是一种能让攻击者通过使用一些类似 ..&#x2F; 的目录控制序列访问 web 服务器上任意文件的安全漏洞。 任意文件主要包括：  程序源码和数据 服务端证书 敏感的系统文件，&#x2F;etc&#x2F;passwd  path">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/images/2023/12/17/Pasted-image-20231209110748.png">
-<meta property="og:image" content="http://example.com/images/2023/12/17/Pasted-image-20231209110859.png">
-<meta property="og:image" content="http://example.com/images/2023/12/17/Pasted-image-20231209111405.png">
-<meta property="og:image" content="http://example.com/images/2023/12/17/Pasted-image-20231206224112.png">
-<meta property="og:image" content="http://example.com/images/2023/12/17/Pasted-image-20231207222507.png">
-<meta property="og:image" content="http://example.com/images/2023/12/17/Pasted-image-20231209113640.png">
-<meta property="og:image" content="http://example.com/images/2023/12/17/Pasted-image-20231209122622.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2023/12/17/Pasted-image-20231209110748.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2023/12/17/Pasted-image-20231209110859.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2023/12/17/Pasted-image-20231209111405.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2023/12/17/Pasted-image-20231206224112.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2023/12/17/Pasted-image-20231207222507.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2023/12/17/Pasted-image-20231209113640.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2023/12/17/Pasted-image-20231209122622.png">
 <meta property="article:published_time" content="2023-12-16T16:00:00.000Z">
 <meta property="article:modified_time" content="2023-12-17T15:25:16.862Z">
 <meta property="article:author" content="CaiShao">
@@ -27,7 +27,7 @@
 <meta property="article:tag" content="owaspTop10">
 <meta property="article:tag" content="path-traversal">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/images/2023/12/17/Pasted-image-20231209110748.png">
+<meta name="twitter:image" content="https://by-musi.github.io/images/2023/12/17/Pasted-image-20231209110748.png">
     
     
       
@@ -88,6 +88,8 @@
      --><!--
        --><li><a href="/archives/">归档</a></li><!--
      --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
        --><li><a href="/search/">搜索</a></li><!--
      --><!--
        --><li><a href="/about/">关于</a></li><!--
@@ -98,8 +100,6 @@
     <span id="actions">
       <ul>
         
-        
-        <li><a class="icon" aria-label="下一篇" href="/2023/12/09/hello-world/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -112,17 +112,7 @@
     <br/>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&text=路径穿越基础介绍"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&is_video=false&description=路径穿越基础介绍"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=路径穿越基础介绍&body=Check out this article: http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&name=路径穿越基础介绍&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&t=路径穿越基础介绍"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -308,6 +298,8 @@
         
           <li><a href="/archives/">归档</a></li>
         
+          <li><a href="/tags/">标签</a></li>
+        
           <li><a href="/search/">搜索</a></li>
         
           <li><a href="/about/">关于</a></li>
@@ -324,17 +316,7 @@
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&text=路径穿越基础介绍"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&is_video=false&description=路径穿越基础介绍"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=路径穿越基础介绍&body=Check out this article: http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&name=路径穿越基础介绍&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&t=路径穿越基础介绍"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2023/12/17/%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/&title=路径穿越基础介绍"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -367,6 +349,8 @@
        --><li><a href="/">首页</a></li><!--
      --><!--
        --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
      --><!--
        --><li><a href="/search/">搜索</a></li><!--
      --><!--
