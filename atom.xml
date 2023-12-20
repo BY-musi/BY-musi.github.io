@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>OhMyDarkSpace</title>
   <icon>https://by-musi.github.io/icon.png</icon>
-  
+  <subtitle>菜少的个人博客</subtitle>
   <link href="https://by-musi.github.io/atom.xml" rel="self"/>
   
   <link href="https://by-musi.github.io/"/>
