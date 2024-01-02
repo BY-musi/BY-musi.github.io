@@ -572,7 +572,7 @@ body {
   }
 }
 .max-width {
-  max-width: 55rem;
+  max-width: 53rem;
 }
 @media (max-width: 480px) {
   .px3 {
@@ -1053,6 +1053,28 @@ body {
   #footer-post-container {
     display: none;
   }
+}
+.swal-overlay {
+  background-color: transparent;
+}
+.copy-success-message {
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+  border-radius: 4px;
+  width: auto;
+  margin: 16x 0px;
+  vertical-align: top;
+}
+.copy-success-message .swal-content {
+  margin: 0px 0px !important;
+  padding: 10px 16px;
+  line-height: 1em;
+}
+.copy-success-message .message-icon {
+  color: #52c41a;
+  margin-right: 8px;
+}
+.copy-success-message .message-content {
+  font-size: 14px;
 }
 .post-list {
   padding: 0;
