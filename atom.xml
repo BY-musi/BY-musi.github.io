@@ -42,6 +42,31 @@
   </entry>
   
   <entry>
+    <title>读论文的“三步走”战略  HowtoReadaPaper</title>
+    <link href="https://by-musi.github.io/2024/02/11/%E8%AF%BB%E8%AE%BA%E6%96%87%E7%9A%84%E2%80%9C%E4%B8%89%E6%AD%A5%E8%B5%B0%E2%80%9D%E6%88%98%E7%95%A5__HowtoReadaPaper/"/>
+    <id>https://by-musi.github.io/2024/02/11/%E8%AF%BB%E8%AE%BA%E6%96%87%E7%9A%84%E2%80%9C%E4%B8%89%E6%AD%A5%E8%B5%B0%E2%80%9D%E6%88%98%E7%95%A5__HowtoReadaPaper/</id>
+    <published>2024-02-10T16:00:00.000Z</published>
+    <updated>2024-02-11T03:29:35.047Z</updated>
+    
+    <content type="html"><![CDATA[<p>当代大学生，尤其是我这样的研究牲，每天需要阅读很多文献&#x2F;文章，但如何快速拿捏一篇文献呢？相信本文会给你答案（我真是越来越老道了，虽然但是，我的梦想是当颜值博主！）</p><p>真实的阅读论文三步法，首先看文献标题，“How to Read a Paper”，简单易懂，没啥说的，确认过眼神，不是“母猪的产后护理”，文献应该没找错；其次看眼作者，滑铁卢大学，没听过呀，google 一下作者，剑桥大学！这下这篇文章不得不看了；最后看下页数，2页？！，舒服了。最最后，关闭文献，打开B站，享受生活。文献？狗都不看(doge)。</p><p>下面介绍这篇文章以及 “虚假的” 文献阅读 “三步走” 战略。</p><h1 id="1-三句话概括"><a href="#1-三句话概括" class="headerlink" title="1 三句话概括"></a>1 三句话概括</h1><ol><li>本文介绍了一个高效阅读科研论文的方法 – three-pass。</li><li>第一遍看个大概，解决方法部分只看标题与小标题；第二遍看图表；第三遍，坐牢。</li><li>介绍了一些调研陌生科研领域时找论文的方法。</li></ol><h1 id="2-作者简介"><a href="#2-作者简介" class="headerlink" title="2 作者简介"></a>2 作者简介</h1><p><a data-fancybox="gallery" data-src="/images/2024/02/11/Pasted_image_20231120105455.png" data-caption=""><img src="/images/2024/02/11/Pasted_image_20231120105455.png"></a><br><a href="https://svr-sk818-web.cl.cam.ac.uk/keshav/wiki/index.php/Main_Page">Srinivasan Keshav</a> 剑桥大学计算机科学与技术系 Robert Sansom 计算机科学教授，之前研究计算机网络，现在好像去保护环境了？</p><h1 id="3-读论文的“三步走”战略"><a href="#3-读论文的“三步走”战略" class="headerlink" title="3 读论文的“三步走”战略"></a>3 读论文的“三步走”战略</h1><blockquote><p>概述<br>The first pass gives you a <strong>general idea</strong> about the paper. The second pass lets you grasp the paper’s content, <strong>but not its details</strong>. The third pass helps you <strong>understand the paper in depth</strong>.</p></blockquote><h2 id="the-first-pass-快速扫描，鸟瞰全文"><a href="#the-first-pass-快速扫描，鸟瞰全文" class="headerlink" title="the first pass - 快速扫描，鸟瞰全文"></a>the first pass - 快速扫描，鸟瞰全文</h2><p>第一遍读论文时，可以快速浏览整篇文章，也就是文中说的 bird’s-eye view，以抓住文章的 main idea 为主。读完第一遍后，我们应该就摸清这篇论文啥水平了(shen&#x2F;shit)，同时也能知道它是否具有进一步阅读 (second and third pass) 的价值。</p><p>一般<strong>10分钟</strong>左右。（我这种菜鸡也就个把小时吧）</p><h3 id="具体步骤"><a href="#具体步骤" class="headerlink" title="具体步骤"></a>具体步骤</h3><ol><li>仔细阅读文章标题、摘要和简介部分 (the title, abstract, and introduction)</li><li>读 section 和 sub-section 的标题，忽略其他</li><li>读结论</li><li>浏览一下参考文献，可以写写画画，勾一下你已经读过的文献</li></ol><h3 id="侧重点"><a href="#侧重点" class="headerlink" title="侧重点"></a>侧重点</h3><p>读完第一遍之后，我们应该能够回答一下问题：</p><ol><li>Category：这篇文章是什么类型？</li><li>Context：有哪些相关文章，解决该问题有哪些相关理论？</li><li>Correctness：文中的假设是否有效？</li><li>Contributions：本文主要贡献？</li><li>Clarity：这篇文章写得是否条理清晰</li></ol><h2 id="the-second-pass-关注要点，忽略细节"><a href="#the-second-pass-关注要点，忽略细节" class="headerlink" title="the second pass - 关注要点，忽略细节"></a>the second pass - 关注要点，忽略细节</h2><p>第二遍读论文可以读的稍微细一点，但是不用太关注太多细节，比如证明过程。看完第二遍，我们就能够抓住本文的主旨和主要思路了，甚至能将该论文讲给其他人了。</p><p>一般花个 <strong>1 小时</strong>。（这么说我只用花一天时间就能抓住要点了？）</p><h3 id="具体步骤-1"><a href="#具体步骤-1" class="headerlink" title="具体步骤"></a>具体步骤</h3><ol><li>仔细看图标，抓住要点</li><li>标记一下没看过的参考文献，为下一篇文章做准备（一入__深似海</li></ol><h2 id="the-third-pass-复现"><a href="#the-third-pass-复现" class="headerlink" title="the third pass - 复现"></a>the third pass - 复现</h2><p>第三遍读论文的时候要完全理解本篇文章，包括证明过程中的细节。</p><p>初学者<strong>4-5h</strong>，有经验的 <strong>1h 左右</strong>。（太棒了！我只需要一周就能完全理解一篇论文了）</p><h3 id="具体步骤-2"><a href="#具体步骤-2" class="headerlink" title="具体步骤"></a>具体步骤</h3><blockquote><p>the key to the third pass：<br>making the same assumptions as the authors, re-create the work</p></blockquote><p>在脑子里做相同的假设，重新做一遍文章中的工作(<strong>virtually re-implement</strong>)。要注意所有的细节与假设。</p><h3 id="侧重点-1"><a href="#侧重点-1" class="headerlink" title="侧重点"></a>侧重点</h3><p>读完第三遍之后，我们要做到以下几点：</p><ol><li>能自己在脑海中构建本文的整个思路框架，并判断其优缺点</li><li>能指出隐含的假设，未引用的相关研究以及实验和分析方法中的潜在问题</li><li>有无改进思路</li></ol><h1 id="4-找论文–快速调研某个领域"><a href="#4-找论文–快速调研某个领域" class="headerlink" title="4 找论文–快速调研某个领域"></a>4 找论文–快速调研某个领域</h1><p>上文介绍了如何读论文，但是我们研究牲要读大量论文，有时候需要调研一些我们不熟悉的研究方向&#x2F;领域。那我们如何<strong>查找相关论文</strong>来快速了解我们不熟悉的领域呢？</p><ol><li>使用<strong>学术搜索引擎</strong>搜索论文，如 Google Scholar, CiteSeer <ol><li>找三五篇该领域下最新的论文</li><li>尤其关注该领域的<strong>调研论文或综述论文</strong></li></ol></li><li>找高引用的文章或出现较多的作者<ol><li>尤其关注顶会，以下是网络安全四大顶会<ol><li>IEEE Symposium on Security and Privacy</li><li>Usenix Security Symposium </li><li>ACM Conference on Computer and Communications Security</li><li>Symposium on Network and Distributed System Security</li></ol></li></ol></li><li>直接在<strong>顶会</strong>上找最新报告&#x2F;论文</li></ol>]]></content>
+    
+    
+      
+      
+        
+        
+    <summary type="html"></summary>
+        
+      
+    
+    
+    
+    
+    <category term="论文精读" scheme="https://by-musi.github.io/tags/%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/"/>
+    
+  </entry>
+  
+  <entry>
     <title>PortSwigger path-traversal labs</title>
     <link href="https://by-musi.github.io/2023/12/26/PortSwigger_path-traversal_labs/"/>
     <id>https://by-musi.github.io/2023/12/26/PortSwigger_path-traversal_labs/</id>
