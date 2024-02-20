@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="1 Lab: Unprotected admin functionalitytarget: Solve the lab by deleting the user carlos. 删除用户 carlos  根据题目要求，尝试在 robots.txt 中寻找敏感信息。  访问该 API，来到管理员面板。   2 Lab: Unprotected admin functionality with unp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PortSwigger access control Labs">
+<meta property="og:url" content="https://by-musi.github.io/2024/02/20/PortSwigger_access_control_Labs/index.html">
+<meta property="og:site_name" content="OhMyDarkSpace">
+<meta property="og:description" content="1 Lab: Unprotected admin functionalitytarget: Solve the lab by deleting the user carlos. 删除用户 carlos  根据题目要求，尝试在 robots.txt 中寻找敏感信息。  访问该 API，来到管理员面板。   2 Lab: Unprotected admin functionality with unp">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240106161825.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240106162110.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240106162154.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240106162232.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107104346.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107104533.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107104553.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107105614.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107105801.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107110032.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107110145.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107110205.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107110527.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107110821.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107111149.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107111254.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107111335.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107113007.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107155013.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107155233.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107155158.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107155506.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107160619.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107160636.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107162239.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107162253.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107162604.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107162620.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107162748.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107163333.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240107163300.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112212418.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109171946.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112213131.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112213316.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112213417.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112213641.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112213417.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112214017.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112165905.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112214345.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240108225448.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240108231622.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240108231809.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240108232118.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240108232247.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109163448.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109164124.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109164528.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109164554.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109165028.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109165232.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109165426.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109165855.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109165932.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109170201.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109170606.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109170709.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109170849.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109215235.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109215307.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109215455.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109215844.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109215954.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109220014.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109221233.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109221254.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109222717.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109223721.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109223735.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109223655.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109223633.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240109225225.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112122828.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112123038.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112123138.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112135409.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112170009.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112135557.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112165821.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112165905.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112135658.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112170801.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112171252.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112171217.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112173035.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112172848.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112172920.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112173526.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112173607.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112203449.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112205031.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112205106.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112204821.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112205244.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112205920.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112210020.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112165905.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240112210149.png">
+<meta property="article:published_time" content="2024-02-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-02-20T13:54:09.005Z">
+<meta property="article:author" content="CaiShao">
+<meta property="article:tag" content="web">
+<meta property="article:tag" content="writeup">
+<meta property="article:tag" content="access_control">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240106161825.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>PortSwigger access control Labs</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+
+  <!-- fancybox -->
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="OhMyDarkSpace" type="application/atom+xml">
+<link rel="alternate" href="/rss2.xml" title="OhMyDarkSpace" type="application/rss+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/02/20/%E9%82%A3%E4%BA%9B%E5%B9%B4%E6%88%91%E4%BB%AC%E8%B8%A9%E8%BF%87%E7%9A%84%E5%9D%91--archlinux/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/02/11/2023_%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2024/02/20/PortSwigger_access_control_Labs/&title=PortSwigger access control Labs"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Lab-Unprotected-admin-functionality"><span class="toc-number">1.</span> <span class="toc-text">1 Lab: Unprotected admin functionality</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Lab-Unprotected-admin-functionality-with-unpredictable-URL"><span class="toc-number">2.</span> <span class="toc-text">2 Lab: Unprotected admin functionality with unpredictable URL</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Lab-User-role-controlled-by-request-parameter"><span class="toc-number">3.</span> <span class="toc-text">3 Lab: User role controlled by request parameter</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Lab-User-role-can-be-modified-in-user-profile"><span class="toc-number">4.</span> <span class="toc-text">4 Lab: User role can be modified in user profile</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Lab-URL-based-access-control-can-be-circumvented"><span class="toc-number">5.</span> <span class="toc-text">5 Lab: URL-based access control can be circumvented</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-Lab-Method-based-access-control-can-be-circumvented"><span class="toc-number">6.</span> <span class="toc-text">6 Lab: Method-based access control can be circumvented</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-Lab-User-ID-controlled-by-request-parameter"><span class="toc-number">7.</span> <span class="toc-text">7 Lab: User ID controlled by request parameter</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-Lab-User-ID-controlled-by-request-parameter-with-unpredictable-user-IDs"><span class="toc-number">8.</span> <span class="toc-text">8 Lab: User ID controlled by request parameter, with unpredictable user IDs</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-Lab-User-ID-controlled-by-request-parameter-with-data-leakage-in-redirect"><span class="toc-number">9.</span> <span class="toc-text">9 Lab: User ID controlled by request parameter with data leakage in redirect</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#10-Lab-User-ID-controlled-by-request-parameter-with-password-disclosure"><span class="toc-number">10.</span> <span class="toc-text">10 Lab: User ID controlled by request parameter with password disclosure</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#11-Lab-Insecure-direct-object-references"><span class="toc-number">11.</span> <span class="toc-text">11 Lab: Insecure direct object references</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#12-Lab-Multi-step-process-with-no-access-control-on-one-step"><span class="toc-number">12.</span> <span class="toc-text">12 Lab: Multi-step process with no access control on one step</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#13-Lab-Referer-based-access-control"><span class="toc-number">13.</span> <span class="toc-text">13 Lab: Referer-based access control</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        PortSwigger access control Labs
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">CaiShao</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-02-19T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-02-20</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/access-control/" rel="tag">access_control</a>, <a class="p-category" href="/tags/web/" rel="tag">web</a>, <a class="p-category" href="/tags/writeup/" rel="tag">writeup</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="1-Lab-Unprotected-admin-functionality"><a href="#1-Lab-Unprotected-admin-functionality" class="headerlink" title="1 Lab: Unprotected admin functionality"></a>1 Lab: Unprotected admin functionality</h1><p>target: Solve the lab by deleting the user <code>carlos</code>. 删除用户 <code>carlos</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240106161825.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240106161825.png"></a></p>
+<p>根据题目要求，尝试在 <code>robots.txt</code> 中寻找敏感信息。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240106162110.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240106162110.png"></a></p>
+<p>访问该 API，来到管理员面板。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240106162154.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240106162154.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240106162232.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240106162232.png"></a></p>
+<h1 id="2-Lab-Unprotected-admin-functionality-with-unpredictable-URL"><a href="#2-Lab-Unprotected-admin-functionality-with-unpredictable-URL" class="headerlink" title="2 Lab: Unprotected admin functionality with unpredictable URL"></a>2 Lab: Unprotected admin functionality with unpredictable URL</h1><p>后台隐藏在 javascript 中。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107104346.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107104346.png"></a></p>
+<p>访问 url <code>...web-security-academy.net/admin-3h7sno</code> </p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107104533.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107104533.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107104553.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107104553.png"></a></p>
+<h1 id="3-Lab-User-role-controlled-by-request-parameter"><a href="#3-Lab-User-role-controlled-by-request-parameter" class="headerlink" title="3 Lab: User role controlled by request parameter"></a>3 Lab: User role controlled by request parameter</h1><p>目标：访问后台并删除用户 <code>carlos</code><br>credentials: <code>wiener:peter</code></p>
+<p>使用 <code>wiener:peter</code> 并抓包，重放，可以看到包里面设置了 csrf token 和 session</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107105614.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107105614.png"></a></p>
+<p>登录成功后，会进行页面跳转，这里的逻辑可能是：判断 <code>Admin</code> 参数来决定跳转的页面。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107105801.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107105801.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107110032.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107110032.png"></a></p>
+<p>思路：修改所有请求报文中的 cookie 参数 <code>Admin=ture</code> </p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107110145.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107110145.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107110205.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107110205.png"></a></p>
+<p>重新登录，抓包，改包</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107110527.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107110527.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107110821.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107110821.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107111149.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107111149.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107111254.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107111254.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107111335.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107111335.png"></a></p>
+<h1 id="4-Lab-User-role-can-be-modified-in-user-profile"><a href="#4-Lab-User-role-can-be-modified-in-user-profile" class="headerlink" title="4 Lab: User role can be modified in user profile"></a>4 Lab: User role can be modified in user profile</h1><p>根据题意，请求 <code>/admin</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107113007.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107113007.png"></a></p>
+<blockquote>
+<p>[!question] 问题<br>如何修改 <code>user role</code>？抓包的结果里面也没地方传参数 <code>roleid=2</code> 呀！</p>
+<p><strong>答：</strong> 修改邮箱的时候以 json 格式传输 <code>roleid</code>，<strong>注意枚举输入向量</strong></p>
+</blockquote>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107155013.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107155013.png"></a></p>
+<p>响应报文提示，<code>roleid</code> 已被修改：</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107155233.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107155233.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107155158.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107155158.png"></a></p>
+<p>进入 Admin panel 删除用户 <code>carlos</code>，拿下。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107155506.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107155506.png"></a></p>
+<h1 id="5-Lab-URL-based-access-control-can-be-circumvented"><a href="#5-Lab-URL-based-access-control-can-be-circumvented" class="headerlink" title="5 Lab: URL-based access control can be circumvented"></a>5 Lab: URL-based access control can be circumvented</h1><p>抓包重放</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107160619.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107160619.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107160636.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107160636.png"></a></p>
+<blockquote>
+<p>[!note]<br>Notice that the response is very <strong>plain</strong>, suggesting it may originate from <strong>a front-end system</strong>.<br>响应里面啥也没有，说明它可能是来自前端</p>
+</blockquote>
+<p>更改 HTTP 请求头：<code>X-Original-Url: /admin</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107162239.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107162239.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107162253.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107162253.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107162604.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107162604.png"></a><br><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107162620.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107162620.png"></a></p>
+<p>提示 <code>Missing parameter &#39;username&#39;</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107162748.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107162748.png"></a></p>
+<p>将参数单拎出来，响应报文提示 302 重定向，说明删除用户的操作可能成功了。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107163333.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107163333.png"></a></p>
+<p>抓包，改包，删用户，删除用户之后重定向到 <code>/admin</code> 时还需要改一下报文，成功。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240107163300.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240107163300.png"></a></p>
+<p>官方 solution 在中间加了一步，判断后端是否会处理 <code>X-Original-Url</code> 头。</p>
+<blockquote>
+<p>Send the request to Burp Repeater. Change the URL in the request line to <code>/</code> and add the HTTP header <code>X-Original-URL: /invalid</code>. Observe that the application returns a “not found” response. This indicates that the back-end system is processing the URL from the <code>X-Original-URL</code> header.</p>
+</blockquote>
+<h1 id="6-Lab-Method-based-access-control-can-be-circumvented"><a href="#6-Lab-Method-based-access-control-can-be-circumvented" class="headerlink" title="6 Lab: Method-based access control can be circumvented"></a>6 Lab: Method-based access control can be circumvented</h1><p><a target="_blank" rel="noopener" href="https://portswigger.net/web-security/access-control/lab-method-based-access-control-can-be-circumvented">–&gt; lab</a></p>
+<p>credentials: <code>wiener:peter</code>, <code>administrator:admin</code><br>目标：使用 <code>wiener</code> 登录，并通过 BAC ( break access control ) 将自己提升为 <code>administrator</code> 权限。<br>ps：可以登录 <code>administrator</code> 账号熟悉下提权流程。</p>
+<p>提权流程与 [[#13 Lab Referer-based access control]] 类似。</p>
+<p>登录 <code>administrator</code> 抓包，请求报文使用 POST 方法，直接传递参数 <code>username=carlos&amp;action=upgrade</code> 且无需二次验证等操作，请求的 API 是 <code>/admin-roles</code>。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112212418.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112212418.png"></a></p>
+<p>思路：登录普通用户，使用 POST 方法请求 <code>/admin-roles</code> 接口，并传递参数 <code>username</code> 和 <code>action=upgrade</code>。</p>
+<p>在 url 中传递 GET 参数 <code>id=administrator</code> 后，发现重定向跳转到了登录界面，抓包，观察重定向报文是否暴露敏感信息。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109171946.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109171946.png"></a></p>
+<p>响应报文仅显示了跳转到 login 界面，且未包含其他有效内容。</p>
+<p>“Update email” 抓包，使用 POST 传递参数 <code>email</code>。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112213131.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112213131.png"></a></p>
+<p>修改报文，请求 API <code>/admin-roles</code> 并传递参数 <code>username=wiener&amp;action=upgrade</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112213316.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112213316.png"></a></p>
+<p>响应报文提示 401 Unauthorized</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112213417.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112213417.png"></a></p>
+<p>难道它还要判断这个请求是不是从 <code>/admin</code> 接口过来？需要 <code>Referer</code> 头部包含 <code>/admin</code>？</p>
+<p>再次修改报文，修改 HTTP 请求头 <code>Referer</code>。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112213641.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112213641.png"></a></p>
+<p>得到的响应仍然是 “401 Unauthorized”。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112213417.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112213417.png"></a></p>
+<p>稍微审下题，emmm，有些服务器可能会使用不同的 HTTP 方法处理同样的 action，这里我们把报文改成 GET 请求，再发送。这道题应该不会验证 <code>Referer</code> 头部，我只是懒得改回去了。。。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112214017.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112214017.png"></a></p>
+<p>响应报文显示 302 重定向到 <code>/admin</code> 提权成功。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112165905.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112165905.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112214345.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112214345.png"></a></p>
+<h1 id="7-Lab-User-ID-controlled-by-request-parameter"><a href="#7-Lab-User-ID-controlled-by-request-parameter" class="headerlink" title="7 Lab: User ID controlled by request parameter"></a>7 Lab: User ID controlled by request parameter</h1><p>credentials: <code>wiener:peter</code><br>目标：拿到用户 <code>carlos</code> 的 API key 并提交</p>
+<p>登录后界面<br><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240108225448.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240108225448.png"></a></p>
+<p>抓包，重放</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240108231622.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240108231622.png"></a></p>
+<p>直接修改 <code>id=carlos</code>，</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240108231809.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240108231809.png"></a></p>
+<p>在浏览器中修改参数，拿到 API key 并提交</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240108232118.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240108232118.png"></a></p>
+<p>也可以直接复制 burp repeater 响应 中的 API key。 Render 渲染部分好像无法复制 API key，不过可以复制响应 Pretty 或 Raw 中的 API key</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240108232247.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240108232247.png"></a></p>
+<h1 id="8-Lab-User-ID-controlled-by-request-parameter-with-unpredictable-user-IDs"><a href="#8-Lab-User-ID-controlled-by-request-parameter-with-unpredictable-user-IDs" class="headerlink" title="8 Lab: User ID controlled by request parameter, with unpredictable user IDs"></a>8 Lab: User ID controlled by request parameter, with unpredictable user IDs</h1><p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109163448.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109163448.png"></a></p>
+<p>抓包发现，这里的用户判断依据是 GUIDs，如果能拿到受害人 <code>carlos</code> 的 GUIDs 就能以受害人的身份访问其敏感数据，如：API key。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109164124.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109164124.png"></a></p>
+<p>那么如何拿到 <code>carlos</code> 的 GUIDs 呢，首先肯定是明确 <code>carlos</code> 出现在那些地方，找了一圈，没发现好友功能。后面发现第一篇 blog 的作者就是 <code>carlos</code>。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109164528.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109164528.png"></a><br><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109164554.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109164554.png"></a></p>
+<p>点击作者 <code>carlos</code> 可以查看该作者的其他博客，同时地址栏显示出其 GUIDs。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109165028.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109165028.png"></a></p>
+<p>复制该 GUIDs，并回到 <code>My account</code> 界面，以 <code>carlos</code> 身份拿到其 API key。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109165232.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109165232.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109165426.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109165426.png"></a></p>
+<h1 id="9-Lab-User-ID-controlled-by-request-parameter-with-data-leakage-in-redirect"><a href="#9-Lab-User-ID-controlled-by-request-parameter-with-data-leakage-in-redirect" class="headerlink" title="9 Lab: User ID controlled by request parameter with data leakage in redirect"></a>9 Lab: User ID controlled by request parameter with data leakage in redirect</h1><p><a target="_blank" rel="noopener" href="https://portswigger.net/web-security/access-control/lab-user-id-controlled-by-request-parameter-with-data-leakage-in-redirect">–&gt; lab</a></p>
+<p>首先看一下网站业务，该网站是一个线上商城，</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109165855.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109165855.png"></a></p>
+<p>商品页面也不包含用户 <code>carlos</code> 即受害人的相关信息。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109165932.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109165932.png"></a></p>
+<p>在 <code>My account</code> 界面直接使用 <code>id=carlos</code> 绕过访问控制被重定向到登录页。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109170201.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109170201.png"></a></p>
+<p>修改 id，发送 get 请求，抓包</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109170606.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109170606.png"></a></p>
+<p>得到如下响应报文：</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109170709.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109170709.png"></a></p>
+<p>可以看到虽然是 302 重定向到 login 页面，但响应报文中仍然包含了 <code>carlos</code> 的用户信息，当然也包括 API key。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109170849.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109170849.png"></a></p>
+<h1 id="10-Lab-User-ID-controlled-by-request-parameter-with-password-disclosure"><a href="#10-Lab-User-ID-controlled-by-request-parameter-with-password-disclosure" class="headerlink" title="10 Lab: User ID controlled by request parameter with password disclosure"></a>10 Lab: User ID controlled by request parameter with password disclosure</h1><p><a target="_blank" rel="noopener" href="https://portswigger.net/web-security/access-control/lab-user-id-controlled-by-request-parameter-with-password-disclosure">–&gt; lab</a></p>
+<p>目标：获取管理员密码并删除用户 <code>carlos</code><br>credentials: <code>wiener:peter</code></p>
+<p>登录后发现用户当前密码就展示在输入框里</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109215235.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109215235.png"></a></p>
+<p>虽然被隐去了，但在源码中还是可以看到用户当前密码的。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109215307.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109215307.png"></a></p>
+<p>通过修改 GET 参数 <code>id=administrator</code>，绕过访问控制，这里其实算是绕过水平 (horizontal) 访问控制，但是该用户有管理员权限，也能算是垂直 (vertical) 访问控制，也就是所谓的 “<a target="_blank" rel="noopener" href="https://portswigger.net/web-security/access-control#horizontal-to-vertical-privilege-escalation">Horizontal to vertical privilege escalation</a>“。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109215455.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109215455.png"></a></p>
+<p>同样我们可以在源码中拿到 <code>administrator</code> 的密码：o84lgfayqhlsesmbgaan。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109215844.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109215844.png"></a></p>
+<p>使用 <code>administrator:o84lgfayqhlsesmbgaan</code> 登录</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109215954.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109215954.png"></a></p>
+<p>删除 <code>carlos</code> 完成 lab.</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109220014.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109220014.png"></a></p>
+<h1 id="11-Lab-Insecure-direct-object-references"><a href="#11-Lab-Insecure-direct-object-references" class="headerlink" title="11 Lab: Insecure direct object references"></a>11 Lab: Insecure direct object references</h1><p><a href="Lab: Insecure direct object references">–&gt; lab</a></p>
+<p>有个聊天机器人。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109221233.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109221233.png"></a></p>
+<p>可以下载聊天内容。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109221254.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109221254.png"></a></p>
+<p>单击 <code>View transcript</code> 后，抓包，发现，调用接口 <code>/download-transcipt</code> 并重定向请求对应的文件</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109222717.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109222717.png"></a></p>
+<p>思路：修改文件名，看看能不能获取到有用的信，如其他用户的聊天日志。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109223721.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109223721.png"></a></p>
+<p>提示 <code>No transcript</code>。。。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109223735.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109223735.png"></a></p>
+<p>不想猜了，直接 Intruder 爆破一下，先爆一下 0-100 的数字作为文件名。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109223655.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109223655.png"></a></p>
+<p>屁也没有，emmm，前面几个还是我自个点 <code>View transcript</code> 生成的。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109223633.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109223633.png"></a></p>
+<p>题目上说把用户的聊天日志存在了<strong>服务端文件系统</strong>中，难道要用到<strong>路径穿越</strong>的东西？ [[路径穿越基础介绍]]</p>
+<p>简单构造了一下文件名 <code>/download-transcript/../../carlos/download-transcript/1.txt</code> 发现并不对。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240109225225.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240109225225.png"></a></p>
+<blockquote>
+<p>[!question] 问题<br><code>carlos</code> 的聊天日志放在哪呢，咋找呢？没法使用 <code>ls</code> 和 <code>pwd</code> 是真的难受。</p>
+</blockquote>
+<p>通过查看 solution，我突然意识到下载的聊天文件的文件名是从 2 开始的，再结合前面爆破的结果，<code>carlos</code> 的聊天文件大概率在 <code>1.txt</code> 中。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112122828.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112122828.png"></a></p>
+<p>（我咋没试过 <code>1.txt</code> 呢，远在天边近在眼前 …</p>
+<p>请求 <code>1.txt</code> </p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112123038.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112123038.png"></a></p>
+<p>在响应报文中的 <code>carlos</code> 聊天文件中获取到了其敏感信息。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112123138.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112123138.png"></a></p>
+<p>登录，lab 解决。</p>
+<blockquote>
+<p>[!note]<br>这个 lab 告诉我们，使用 ChatGPT 的时候，别问过于敏感的问题。</p>
+<p>PS: 我对细节的把握还是差点意思。</p>
+</blockquote>
+<h1 id="12-Lab-Multi-step-process-with-no-access-control-on-one-step"><a href="#12-Lab-Multi-step-process-with-no-access-control-on-one-step" class="headerlink" title="12 Lab: Multi-step process with no access control on one step"></a>12 Lab: Multi-step process with no access control on one step</h1><p><a target="_blank" rel="noopener" href="https://portswigger.net/web-security/access-control/lab-multi-step-process-with-no-access-control-on-one-step">–&gt; lab</a></p>
+<p>credentials: <code>wiener:peter</code>, <code>administrator:admin</code><br>目标：使用 <code>wiener</code> 登录，并通过 BAC ( break access control ) 将自己提升为 <code>administrator</code> 权限。<br>ps：可以登录 <code>administrator</code> 账号熟悉下提权流程</p>
+<p>admin 提权流程：首先，选择对应用户，这里选 <code>carlos</code>，点击 <code>Upgrade user</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112135409.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112135409.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112170009.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112170009.png"></a></p>
+<p>之后会提示 <code>Are you sure?</code> 点击 <code>Yes</code>，相当于一步验证步骤。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112135557.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112135557.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112165821.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112165821.png"></a></p>
+<p>重定向到 <code>/admin</code> 页面。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112165905.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112165905.png"></a></p>
+<p>提权成功情况如下。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112135658.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112135658.png"></a></p>
+<p>也就是说 提权过程分为三步：</p>
+<ol>
+<li>判断登录用户是否为 administrator </li>
+<li>提交提权请求，即 ‘Upgrade user’</li>
+<li>确认提权请求，’Are you sure?’</li>
+</ol>
+<p>思路: 直接修改第三步操作 “Are you sure” 认证过程的报文，将 <code>username</code> 改为 <code>wiener</code>，从而实现提权。</p>
+<p>下面先在 administrator 用户下修改报文</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112170801.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112170801.png"></a></p>
+<p>响应报文重定向到 <code>/admin</code> 页面，说明大概率成功了。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112171252.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112171252.png"></a></p>
+<p>查看页面。<br><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112171217.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112171217.png"></a><br>解题流程：先登录用户 <code>wiener</code></p>
+<p>修改邮件，抓包</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112173035.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112173035.png"></a></p>
+<p>由于这是 post 方法，我们直接尝试修改 API 访问 <code>/admin-roles</code> 并传递参数 <code>action=upgrade&amp;confirmed=true&amp;username=wiener</code>，绕过逻辑：虽然提权需要三步，但执行第三步的时候后端可能会默认前两步成功了，也就是 身份验证为 <code>administrator</code>，并提交了提权请求，所以直接使用 <code>wiener</code> 身份构造第三步的请求包即可提权成功。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112172848.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112172848.png"></a></p>
+<p>响应报文显示 302 重定向到 <code>/admin</code>，说明提权成功了。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112172920.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112172920.png"></a></p>
+<p>打开网页验证一下。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112173526.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112173526.png"></a></p>
+<p>登录 <code>administrator</code> 面板显示提权成功。<br><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112173607.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112173607.png"></a></p>
+<h1 id="13-Lab-Referer-based-access-control"><a href="#13-Lab-Referer-based-access-control" class="headerlink" title="13 Lab: Referer-based access control"></a>13 Lab: Referer-based access control</h1><p><a target="_blank" rel="noopener" href="https://portswigger.net/web-security/access-control/lab-referer-based-access-control">–&gt; lab</a></p>
+<p>credentials: <code>wiener:peter</code>, <code>administrator:admin</code><br>目标：使用 <code>wiener</code> 登录，并通过 BAC ( break access control ) 将自己提升为 <code>administrator</code> 权限。<br>ps：可以登录 <code>administrator</code> 账号熟悉下提权流程</p>
+<p>与上一个 lab 不同的是，在 admin 管理面板 (admin panel) 直接点击 <code>Upgrade user</code> 即可提权，没有二次检查。</p>
+<p>点击 <code>Upgrade user</code>，抓包，发现使用的是 GET 方法传参，且会验证 <code>Referer</code> 头部 -&gt; 必须从 <code>/admin</code> 页面跳转过来。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112203449.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112203449.png"></a></p>
+<p>修改 <code>Referer</code> 头部<br><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112205031.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112205031.png"></a></p>
+<p>响应报文显示 401 “Unauthorized”，说明会验证 <code>Referer</code> 头部</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112205106.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112205106.png"></a></p>
+<p>思路：登录普通用户，使用 GET 方法请求<code>/admin-roles?username=wiener&amp;action=upgrade</code> 并伪造 <code>Referer</code> 头部，使后端服务器认为是从 <code>/admin</code> 跳转过去的。</p>
+<p>登录 <code>wiener</code>，这里直接选择 <code>my-account</code> 页面的报文，主要它用的是 GET 方法。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112204821.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112204821.png"></a></p>
+<p>仅修改请求 url 为 <code>/account-roles?username=wiener&amp;action=upgrade</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112205244.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112205244.png"></a></p>
+<p>响应报错，提示 401 Unauthorized</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112205920.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112205920.png"></a></p>
+<p>同时修改请求 url 和 <code>Referer</code> </p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112210020.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112210020.png"></a></p>
+<p>响应报文提示 302 跳转到 <code>/admin</code> 页面，提权成功。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112165905.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112165905.png"></a></p>
+<p>刷新页面，显示出 <code>Admin panel</code> 提权成功。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20240112210149.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20240112210149.png"></a></p>
+
+  </div>
+
+  <!-- 版权声明 -->
+  
+
+
+</article>
+
+
+    <div class="blog-post-comments">
+        <div id="utterances_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Lab-Unprotected-admin-functionality"><span class="toc-number">1.</span> <span class="toc-text">1 Lab: Unprotected admin functionality</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Lab-Unprotected-admin-functionality-with-unpredictable-URL"><span class="toc-number">2.</span> <span class="toc-text">2 Lab: Unprotected admin functionality with unpredictable URL</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Lab-User-role-controlled-by-request-parameter"><span class="toc-number">3.</span> <span class="toc-text">3 Lab: User role controlled by request parameter</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Lab-User-role-can-be-modified-in-user-profile"><span class="toc-number">4.</span> <span class="toc-text">4 Lab: User role can be modified in user profile</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Lab-URL-based-access-control-can-be-circumvented"><span class="toc-number">5.</span> <span class="toc-text">5 Lab: URL-based access control can be circumvented</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-Lab-Method-based-access-control-can-be-circumvented"><span class="toc-number">6.</span> <span class="toc-text">6 Lab: Method-based access control can be circumvented</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-Lab-User-ID-controlled-by-request-parameter"><span class="toc-number">7.</span> <span class="toc-text">7 Lab: User ID controlled by request parameter</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-Lab-User-ID-controlled-by-request-parameter-with-unpredictable-user-IDs"><span class="toc-number">8.</span> <span class="toc-text">8 Lab: User ID controlled by request parameter, with unpredictable user IDs</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-Lab-User-ID-controlled-by-request-parameter-with-data-leakage-in-redirect"><span class="toc-number">9.</span> <span class="toc-text">9 Lab: User ID controlled by request parameter with data leakage in redirect</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#10-Lab-User-ID-controlled-by-request-parameter-with-password-disclosure"><span class="toc-number">10.</span> <span class="toc-text">10 Lab: User ID controlled by request parameter with password disclosure</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#11-Lab-Insecure-direct-object-references"><span class="toc-number">11.</span> <span class="toc-text">11 Lab: Insecure direct object references</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#12-Lab-Multi-step-process-with-no-access-control-on-one-step"><span class="toc-number">12.</span> <span class="toc-text">12 Lab: Multi-step process with no access control on one step</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#13-Lab-Referer-based-access-control"><span class="toc-number">13.</span> <span class="toc-text">13 Lab: Referer-based access control</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2024/02/20/PortSwigger_access_control_Labs/&title=PortSwigger access control Labs"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023
+    CaiShao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+      <ul>
+        
+          <span id="busuanzi_container_site_pv">
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+          </span>
+          <span class="post-meta-divider"> | </span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+                本站访客数<span id="busuanzi_value_site_uv"></span>人
+          </span>
+        <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+    <script type="text/javascript">
+      var utterances_repo = 'BY-musi/BY-musi.github.io';
+      var utterances_issue_term = 'pathname';
+      var utterances_label = 'comment';
+      var utterances_theme = 'photon-dark';
+
+      (function(){
+          var script = document.createElement('script');
+
+          script.src = 'https://utteranc.es/client.js';
+          script.setAttribute('repo', utterances_repo);
+          script.setAttribute('issue-term', 'pathname');
+          script.setAttribute('label', utterances_label);
+          script.setAttribute('theme', utterances_theme);
+          script.setAttribute('crossorigin', 'anonymous');
+          script.async = true;
+          (document.getElementById('utterances_thread')).appendChild(script);
+      }());
+  </script>
+
+
+<!-- FancyBox -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+  <script>
+    Fancybox.bind('[data-fancybox="gallery"]', {
+      //
+    });    
+  </script>
+
+
+<!-- Copyright -->
+
+</body>
+</html>
