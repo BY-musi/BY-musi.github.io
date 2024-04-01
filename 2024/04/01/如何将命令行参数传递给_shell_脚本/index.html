@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://by-musi.github.io/images/2024/04/01/Pasted_image_20240330235321.png">
 <meta property="og:image" content="https://by-musi.github.io/images/2024/04/01/Pasted_image_20240331222952.png">
 <meta property="article:published_time" content="2024-03-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-01T14:58:45.643Z">
+<meta property="article:modified_time" content="2024-04-01T15:05:00.401Z">
 <meta property="article:author" content="CaiShao">
 <meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
@@ -206,12 +206,12 @@
 </tbody></table>
 <h1 id="shift"><a href="#shift" class="headerlink" title="shift"></a>shift</h1><p>如果将 <code>$1</code> 及之后的参数序列看成一个栈的话，<code>shift</code> 相当于是将 <code>$1</code> 出栈，之前的 <code>$2</code> 就成了新的 <code>$1</code>，其他参数依次类推。如果仅使用 <code>shift</code> 的话，默认移一位，也可用 <code>shift &lt;n&gt;</code> 移动 n 个参数。</p>
 <p>举个栗子：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line">numargs=$#</span><br><span class="line">echo &quot;$0&quot;</span><br><span class="line">echo &quot;all of the params: $@&quot;</span><br><span class="line">echo &quot;the number of params: $#&quot;</span><br><span class="line">for ((i=1 ; i &lt;= numargs ; i++))</span><br><span class="line">do</span><br><span class="line">    echo &quot;$1&quot;</span><br><span class="line">    shift</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line">numargs=<span class="variable">$#</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$0</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;all of the params: <span class="variable">$@</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;the number of params: <span class="variable">$#</span>&quot;</span></span><br><span class="line"><span class="keyword">for</span> ((i=<span class="number">1</span> ; i &lt;= numargs ; i++))</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">    <span class="built_in">shift</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
 
 <p>运行结果如下，<code>$0</code> 是 shell 脚本的第一个参数，一般被设置为脚本的名字，剩下的参数从 <code>$1</code> 到 <code>$4</code> 依次排序。</p>
 <p><a data-fancybox="gallery" data-src="/images/2024/04/01/Pasted_image_20240324235938.png" data-caption=""><img src="/images/2024/04/01/Pasted_image_20240324235938.png"></a></p>
 <p><code>shift &lt;n&gt;</code> 可以移动 n 个参数，我们尝试一次移动两个。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line">numargs=$#</span><br><span class="line">for ((i=1 ; i &lt;= numargs ; i++))</span><br><span class="line">do</span><br><span class="line">    echo &quot;$1&quot;</span><br><span class="line">    shift 2</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line">numargs=<span class="variable">$#</span></span><br><span class="line"><span class="keyword">for</span> ((i=<span class="number">1</span> ; i &lt;= numargs ; i++))</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">    <span class="built_in">shift</span> 2</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
 
 <p>报错了，不过也是意料之中。</p>
 <p><a data-fancybox="gallery" data-src="/images/2024/04/01/Pasted_image_20240325001425.png" data-caption=""><img src="/images/2024/04/01/Pasted_image_20240325001425.png"></a></p>
@@ -230,7 +230,7 @@
 <p><code>shift</code> 处理位置参数可太死板了！事无巨细，全是用户自己处理。有一个参数的选项用 <code>shift 2</code>，没参数的选项用 <code>shift</code>，甚至没法解释组合使用的选项（如：<code>-fu &lt;USER&gt;</code>），也没有简单的方式指定那些选项是必需的，参数多了维护起来也费劲。</p>
 <p>众所周知，Linux 以“优雅”著称，那么位置参数传递有无“优雅”的解决方案呢？ 下面有请 <code>getopts</code> ！！</p>
 <h1 id="getopts"><a href="#getopts" class="headerlink" title="getopts"></a>getopts</h1><blockquote>
-<p>[!note]<br><code>getopts</code> is neither able to parse GNU-style long options (<code>--myoption</code>) nor XF86-style long options (<code>-myoption</code>)</p>
+<p><code>getopts</code> is neither able to parse GNU-style long options (<code>--myoption</code>) nor XF86-style long options (<code>-myoption</code>)</p>
 </blockquote>
 <p><code>getopts</code> 是 shell 的内置命令，也是用来处理命令行参数的。只能解析一个字符的选项，无法解析长选项，如 <code>--myoption</code> 或 <code>-myoption</code>。</p>
 <p>基础语法如下：</p>
