@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="分享一篇 hackerone 2019 年的报告，介绍了通过 DNS 重新绑定（DNS rebinding）绕过 ip 验证，从而执行 SSRF 攻击获取敏感信息。 报告链接：HackerOne report 541169: GitLab::UrlBlocker validation bypass leading to full Server Side Request Forgery。 Greg">
+<meta property="og:type" content="article">
+<meta property="og:title" content="案例研究-SSRF+DNS rebinding【$5000】">
+<meta property="og:url" content="https://by-musi.github.io/2024/06/06/%E6%A1%88%E4%BE%8B%E7%A0%94%E7%A9%B6-SSRF+DNS_rebinding%E3%80%90$5000%E3%80%91/index.html">
+<meta property="og:site_name" content="OhMyDarkSpace">
+<meta property="og:description" content="分享一篇 hackerone 2019 年的报告，介绍了通过 DNS 重新绑定（DNS rebinding）绕过 ip 验证，从而执行 SSRF 攻击获取敏感信息。 报告链接：HackerOne report 541169: GitLab::UrlBlocker validation bypass leading to full Server Side Request Forgery。 Greg">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/06/06/Pasted_image_20240603110921.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/06/06/Pasted_image_20240603111002.png">
+<meta property="article:published_time" content="2024-06-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-06-06T12:59:17.085Z">
+<meta property="article:author" content="CaiShao">
+<meta property="article:tag" content="writeup">
+<meta property="article:tag" content="ssrf">
+<meta property="article:tag" content="DNS_rebinding">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://by-musi.github.io/images/2024/06/06/Pasted_image_20240603110921.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>案例研究-SSRF+DNS rebinding【$5000】</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+
+  <!-- fancybox -->
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="OhMyDarkSpace" type="application/atom+xml">
+<link rel="alternate" href="/rss2.xml" title="OhMyDarkSpace" type="application/rss+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/06/02/SSRF_%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2024/06/06/%E6%A1%88%E4%BE%8B%E7%A0%94%E7%A9%B6-SSRF+DNS_rebinding%E3%80%90$5000%E3%80%91/&title=案例研究-SSRF+DNS rebinding【$5000】"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">1 漏洞描述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC"><span class="toc-number">2.</span> <span class="toc-text">2 影响版本</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%A4%8D%E7%8E%B0%E6%B5%81%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">3 复现流程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E8%A1%8C%E4%B8%BA%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">4 行为分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E5%BD%93%E5%89%8D%E8%A1%8C%E4%B8%BA"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 当前行为</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-%E6%9C%9F%E6%9C%9B%E8%A1%8C%E4%B8%BA"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 期望行为</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">5.</span> <span class="toc-text">5 代码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-%E6%BC%8F%E6%B4%9E%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 漏洞相关代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-2-%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E4%BB%A3%E7%A0%81"><span class="toc-number">5.2.</span> <span class="toc-text">5.2 漏洞修复代码</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98"><span class="toc-number">6.</span> <span class="toc-text">6 一些问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%99%84"><span class="toc-number">7.</span> <span class="toc-text">附</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        案例研究-SSRF+DNS rebinding【$5000】
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">CaiShao</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-06-05T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-06-06</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/DNS-rebinding/" rel="tag">DNS_rebinding</a>, <a class="p-category" href="/tags/ssrf/" rel="tag">ssrf</a>, <a class="p-category" href="/tags/writeup/" rel="tag">writeup</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>分享一篇 hackerone 2019 年的报告，介绍了通过 DNS 重新绑定（DNS rebinding）绕过 ip 验证，从而执行 SSRF 攻击获取敏感信息。</p>
+<p>报告链接：HackerOne report <a target="_blank" rel="noopener" href="https://hackerone.com/reports/541169">541169</a>: GitLab::UrlBlocker validation bypass leading to full Server Side Request Forgery。</p>
+<p>Greg 在一个<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=R5WB8h7hkrU">视频</a>中也解释了这个漏洞。</p>
+<p>如果你想简单直观地理解 DNS rebinding 绕过 SSRF，可以看 Lostsec 的这个视频：<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=DUwH2fuobaw">SSRF Bypass by DNS Rebinding | Bug bounty poc</a></p>
+<h1 id="1-漏洞描述"><a href="#1-漏洞描述" class="headerlink" title="1 漏洞描述"></a>1 漏洞描述</h1><blockquote>
+<p>The <code>GitLab::UrlBlocker</code> IP address validation methods suffer from a Time of Check to Time of Use (ToCToU) vulnerability。The vulnerability occurs due to multiple DNS resolution requests performed before and after the checks. </p>
+</blockquote>
+<p><a data-fancybox="gallery" data-src="/images/2024/06/06/Pasted_image_20240603110921.png" data-caption=""><img src="/images/2024/06/06/Pasted_image_20240603110921.png"></a></p>
+<p>简单讲，用户输入一个 url，<code>GitLab::UrlBlocker</code> 会先对该 url 进行 DNS 解析，并验证 ip 有效性，防止其解析到诸如 <code>127.0.0.1</code>, <code>::1</code>, <code>169.254.0.0/16</code> 等的 ip。之后，通过 HTTP 请求该 url 时，又会进行一次 DNS 解析。第一次解析到有效 ip 后会默认后面解析的 ip 均有效，使用 DNS rebinding 将 <code>127.0.0.1</code> 绑定到该 url 上，再结合使用 TOCTOU（经典的 Race Condition）即可绕过 ip 有效性验证。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/06/06/Pasted_image_20240603111002.png" data-caption=""><img src="/images/2024/06/06/Pasted_image_20240603111002.png"></a></p>
+<h1 id="2-影响版本"><a href="#2-影响版本" class="headerlink" title="2 影响版本"></a>2 影响版本</h1><p>gitlab 11.9.8 ee PS: hackerone report 中的版本</p>
+<h1 id="3-复现流程"><a href="#3-复现流程" class="headerlink" title="3 复现流程"></a>3 复现流程</h1><p>证明：配置一个域名 <code>gitladextssrf.webhooks.pw</code>，该域名可能会被解析到 <code>127.0.0.1</code>（DNS 重新绑定后的恶意域名）与 <code>198.211.125.160</code>（gitlab 服务原域名）。如果访问域名时，域名被解析到 <code>127.0.0.1</code> 则说明攻击成功。</p>
+<ol>
+<li>Create a new repository</li>
+<li>Add a commit to the repository</li>
+<li>Create a new <strong>Web Hook</strong> integration with the URL <code>http://gitlabextssrf.webhooks.pw:9999</code>.</li>
+<li>Log into the gitlab server and start a TCP listener on port 9999&#x2F;tcp (e.g. <code>nc -vvn -l -p 9999</code>)</li>
+<li>发送一系列并行报文请求 webhook。</li>
+</ol>
+<p>DNS rebinding 一般要跟 TOCTOU 逻辑漏洞组合使用，毕竟要跟解析到的正常 IP 竞争。TOCTOU 算是比较传统的条件竞争（race condition）漏洞，而条件竞争的关键就是使各个请求间的延迟尽可能短，尽可能实现“同时”。所以这里要并行发送报文请求 webhook。</p>
+<p>具体用到的命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ ./wfuzz -X POST \</span><br><span class="line">-b <span class="string">&quot;_gitlab_session=&lt;session_id&gt;;&quot;</span> \</span><br><span class="line">-d <span class="string">&quot;_method=post&amp;authenticity_token=&lt;token&gt;&quot;</span> \</span><br><span class="line">-z range,0-1000 \</span><br><span class="line"><span class="string">&quot;https://&lt;domain&gt;/&lt;user&gt;/&lt;repo&gt;/hooks/&lt;hook_id&gt;/test?trigger=push_events&amp;test=FUZZ&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的命令貌似是通过 wfuzz 使用多线程或并发的方式向服务端发送 1000 个请求报文，无法保证各请求之间的延迟。目前主流的并行发送请求的方式有两种：last-byte request 和 single-packet attack，我们可以使用 BurpSuite 中的 Turbo Intruder 以这两种方式发送并行请求，后面我写一篇关于 Race Condition 的文章细说。</p>
+<p>域名能解析到 <code>127.0.0.1</code> 意味着也可以解析到任意 IP，包括内网 IP、AWS 云服务 IP（一般是 <code>169.254.169.254</code>），继而允许攻击者读取敏感信息、攻击内网主机等。</p>
+<h1 id="4-行为分析"><a href="#4-行为分析" class="headerlink" title="4 行为分析"></a>4 行为分析</h1><h2 id="4-1-当前行为"><a href="#4-1-当前行为" class="headerlink" title="4.1 当前行为"></a>4.1 当前行为</h2><blockquote>
+<p>The <code>GitLab::UrlBlocker</code> validation code resolves the IP addresses of a URL domain, validates them against a series of block lists, and if valid returns to the <code>GitLab::HTTP</code> module which re-resolves the URL domain in order to perform the HTTP request</p>
+</blockquote>
+<h2 id="4-2-期望行为"><a href="#4-2-期望行为" class="headerlink" title="4.2 期望行为"></a>4.2 期望行为</h2><blockquote>
+<p>The validated resolved addresses should be returned by <code>GitLab::UrlBlocker</code> and used by <code>GitLab::HTTP</code> to make the TCP connection to the destination host.</p>
+</blockquote>
+<h1 id="5-代码分析"><a href="#5-代码分析" class="headerlink" title="5 代码分析"></a>5 代码分析</h1><blockquote>
+<p>先吐个槽 </p>
+<p>妈的，这代码怎么找啊，目录结构都是一团浆糊更别说在里面找相关代码了，麻了…..</p>
+</blockquote>
+<h2 id="5-1-漏洞相关代码"><a href="#5-1-漏洞相关代码" class="headerlink" title="5.1 漏洞相关代码"></a>5.1 漏洞相关代码</h2><p>代码链接：<a target="_blank" rel="noopener" href="https://gitlab.com/gitlab-org/gitlab/-/blob/v11.9.8-ee/lib/gitlab/url_blocker.rb">lib&#x2F;gitlab&#x2F;url_blocker.rb · v11.9.8-ee · GitLab.org &#x2F; GitLab · GitLab</a></p>
+<p><code>url_blocker.rb</code> 中的存在逻辑漏洞的代码块如下。功能：判断是否可以 DNS 解析，以验证 url 合理性，返回一个 bool 变量。同时，也就意味着当请求该 url 时仍会进行一次 DNS 解析以获取 ip 地址。总共进行了两次 DNS 解析，存在 TOCTOU 逻辑漏洞。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">begin</span> </span><br><span class="line">  addrs_info = <span class="title class_">Addrinfo</span>.getaddrinfo(uri.hostname, port, <span class="literal">nil</span>, <span class="symbol">:STREAM</span>).map <span class="keyword">do</span> |<span class="params">addr</span>|</span><br><span class="line">    addr.ipv6_v4mapped? ? addr.ipv6_to_ipv4 : addr </span><br><span class="line">    <span class="comment"># 如果是 ipv4 映射到 ipv6 地址空间的，调用 .ipv6_to_ipv4</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">rescue</span> <span class="title class_">SocketError</span></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p><code>url_blocker.rb</code> 的全注释代码见文末。</p>
+<h2 id="5-2-漏洞修复代码"><a href="#5-2-漏洞修复代码" class="headerlink" title="5.2 漏洞修复代码"></a>5.2 漏洞修复代码</h2><p>再来看看该漏洞是如何修复的。</p>
+<p>漏洞修复代码链接：<a target="_blank" rel="noopener" href="https://hackerone.com/reports/541169">Protect Gitlab HTTP against DNS rebinding attack</a></p>
+<p>主要的变动就是有效性验证成功的返回值包括了 uri 解析后的 ip <code>[uri, hostname]</code> ，而不仅仅返回布尔值。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Returns the given URI with IP address as hostname and the original hostname respectively</span></span><br><span class="line"><span class="comment"># in an Array.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># It checks whether the resolved IP address matches with the hostname. If not, it changes</span></span><br><span class="line"><span class="comment"># the hostname to the resolved IP address.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># The original hostname is used to validate the SSL, given in that scenario</span></span><br><span class="line"><span class="comment"># we&#x27;ll be making the request to the IP address, instead of using the hostname.</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">enforce_uri_hostname</span>(<span class="params">addrs_info, uri, hostname</span>)</span><br><span class="line">  address = addrs_info.first <span class="comment"># 取第一个 ip 地址作为 uri 解析后的 ip 地址</span></span><br><span class="line">  ip_address = address&amp;.ip_address</span><br><span class="line">  <span class="comment"># The &amp; (safe navigation operator) ensures that if address is nil, the code doesn&#x27;t raise an error, returning nil for ip_address.</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ip_address &amp;&amp; ip_address != hostname</span><br><span class="line">    uri = uri.dup  </span><br><span class="line">    <span class="comment"># 若 original hostname 是 www.example.com，更新后就变成了对应的 ip address，所以要保存原来的 uri 用于其他用途</span></span><br><span class="line">    uri.hostname = ip_address</span><br><span class="line">    <span class="keyword">return</span> [uri, hostname]</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  [uri, <span class="literal">nil</span>]</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="6-一些问题"><a href="#6-一些问题" class="headerlink" title="6 一些问题"></a>6 一些问题</h1><blockquote>
+<p>Wikipedia上为什么说 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/DNS_rebinding">DNS rebinding</a> 解析到攻击者 DNS server 时需要 TTL 尽可能小甚至为0？<br>In order to perform this attack a DNS server must be configured to resolve a domain to alternating addresses <strong>with a low (or zero) Time To Live</strong>. </p>
+</blockquote>
+<p><strong>什么是 TTL？</strong></p>
+<blockquote>
+<p>[!quote] <strong>Time to live</strong> (<strong>TTL</strong>) or <strong>hop limit</strong> is a mechanism which limits the lifespan or lifetime of data in a computer or network。</p>
+</blockquote>
+<p>不同场景也有不同的意义。</p>
+<ol>
+<li>数据包路由：TTL 表示数据包的生存时间或跳数。每经过一个路由器，TTL 计数均减一，防止数据包无限循环吃掉网络资源。</li>
+<li>DNS 服务器缓存的 DNS 记录：DNS 缓存服务器在连接到权威性 DNS 服务器并获取记录的新副本之前可以为 DNS 记录提供服务的时间。</li>
+</ol>
+<p>简而言之，当 TTL 用在缓存（DNS, CDN）上时一般就表示缓存信息有效时间。</p>
+<p><strong>什么是 DNS？</strong></p>
+<p>可以使用 <code>chrome://net-internals/#dns</code> 查看 chrome 浏览器缓存的 DNS 记录。</p>
+<ol>
+<li><strong>A 记录</strong>：“A” 代表地址，即给定域名的 IP 地址。其中 <code>@</code> 表示该记录为根域的记录。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>example.com</th>
+<th>record type:</th>
+<th>value:</th>
+<th>TTL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>@</td>
+<td>A</td>
+<td>192.0.2.1</td>
+<td>14400</td>
+</tr>
+</tbody></table>
+<p><strong>NS 记录</strong>：NS 代表“域名服务器”，域名服务器记录指示哪个 <a target="_blank" rel="noopener" href="https://www.cloudflare.com/learning/dns/what-is-dns/">DNS</a> 服务器对该<a target="_blank" rel="noopener" href="https://www.cloudflare.com/learning/dns/glossary/what-is-a-domain-name/">域</a>具有权威性（即，哪个服务器包含实际 <a target="_blank" rel="noopener" href="https://www.cloudflare.com/learning/dns/dns-records/">DNS 记录</a>）。基本上，NS 记录告诉互联网可从哪里找到域的 <a target="_blank" rel="noopener" href="https://www.cloudflare.com/learning/dns/glossary/what-is-my-ip-address/">IP 地址</a>。简单讲，NS 记录表示该域名的权威域名服务器。</p>
+<table>
+<thead>
+<tr>
+<th>example.com</th>
+<th>record type:</th>
+<th>value:</th>
+<th>TTL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>@</td>
+<td>NS</td>
+<td>ns1.exampleserver.com</td>
+<td>21600</td>
+</tr>
+</tbody></table>
+<p><strong>CNAME 记录</strong>：canonical name，规范名，表示一个域名可映射为另一个规范域名（canonical name）。当该域名是另一域名的别名或解析到同一 ip 地址时，cname 可代替 a 记录。</p>
+<table>
+<thead>
+<tr>
+<th>blog.example.com</th>
+<th>record type:</th>
+<th>value:</th>
+<th>TTL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>@</td>
+<td>CNAME</td>
+<td>is an alias of example.com</td>
+<td>32600</td>
+</tr>
+</tbody></table>
+<p>回到那个问题，<strong>DNS rebinding 为什么要求 TTL 尽可能小</strong>？</p>
+<p>TTL 越小，DNS 解析或查询就会越频繁，进而允许攻击者更频繁地修改域名解析到的 IP 地址。另一方面，更小的 TTL 也允许忽略掉缓存中的 DNS 记录</p>
+<p>其实 <strong>DNS rebinding 的关键</strong>在于 <strong>how to redirect DNS resolution to an attack server?</strong></p>
+<ol>
+<li>设置一个 DNS 服务器并把它配置成某个域名的 authoritative DNS server 权威 DNS 服务器。</li>
+<li>short TTL。更正常 DNS 服务器竞争</li>
+<li><strong>DNS 投毒</strong>。把 DNS 缓存中的记录直接改到 attack server</li>
+</ol>
+<p><strong>参考链接：</strong></p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.cloudflare.com/zh-cn/learning/cdn/glossary/time-to-live-ttl/">网络中的生存时间 (TTL) 是什么？</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Time_to_live">wikipedia: Time to live</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cloudflare.com/zh-cn/learning/dns/what-is-dns/">什么是 DNS</a></li>
+</ol>
+<blockquote>
+<p>必须通过域名来验证 SSL 或 TLS 证书嘛，IP 是否可以？</p>
+</blockquote>
+<p>可以。SSL 证书绑定在一个 “common name”上，可以是域名，可以是带通配符的名称 *.example.com 也可以是 IP，但很少给 IP 分配证书。</p>
+<p>一个 IP 上可能寄宿着很多不同的站，分别有不同的域名，SSL 跟域名绑定可以，确保每个网站有其对应的 SSL 证书。</p>
+<p>在一个 IP 上跑网站，可以避免 DNS lookup 产生的时间开销，虽然效果微乎其微。DNS 记录都有缓存，每过 TTL 的时间才发一次请求。我们假设这个 TTL 是 10 min，也就是说过 10 min 才会有个毫秒级的 DNS lookup 请求，时间约等于没有。</p>
+<p>1.1.1.1 有 SSL 证书，但好像解析到了 cloudflare-dns.com .</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">root@OuluVM072311847:~<span class="comment"># openssl s_client -connect 1.1.1.1:443 -servername 1.1.1.1 | openssl x509 -noout -ext subjectAltName</span></span><br><span class="line">depth=2 C = US, O = DigiCert Inc, OU = www.digicert.com, CN = DigiCert Global Root G2</span><br><span class="line">verify <span class="built_in">return</span>:1</span><br><span class="line">depth=1 C = US, O = DigiCert Inc, CN = DigiCert Global G2 TLS RSA SHA256 2020 CA1</span><br><span class="line">verify <span class="built_in">return</span>:1</span><br><span class="line">depth=0 C = US, ST = California, L = San Francisco, O = <span class="string">&quot;Cloudflare, Inc.&quot;</span>, CN = cloudflare-dns.com</span><br><span class="line">verify <span class="built_in">return</span>:1</span><br><span class="line">X509v3 Subject Alternative Name:</span><br><span class="line">    DNS:cloudflare-dns.com, DNS:*.cloudflare-dns.com, DNS:one.one.one.one, IP Address:1.0.0.1, IP Address:1.1.1.1, IP Address:162.159.36.1, IP Address:162.159.46.1, IP Address:2606:4700:4700:0:0:0:0:1001, IP Address:2606:4700:4700:0:0:0:0:1111, IP Address:2606:4700:4700:0:0:0:0:64, IP Address:2606:4700:4700:0:0:0:0:6400</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用 IP 的好处：</strong></p>
+<ol>
+<li>网站经常会使用 cookie 进行认证或追踪用户行为，对于每个发送到域名的请求，这些 cookie 也会随之发送，但请求大多静态内容时却不需要 cookie。如果 cookie 很长，时间开销也不容小觑。一种做法是使用其他域名（separate domain）存放这些静态内容，或者直接将其存放到某个 IP。</li>
+<li>域名要花钱</li>
+<li>避免了 DNS lookup</li>
+</ol>
+<p><strong>使用 IP 的缺点：</strong></p>
+<ol>
+<li>IP vs domain 相当于 硬编码 vs 变量。更换提供商之后，所有的 IP 都得修改，还要重新配置 SSL。</li>
+<li>取决于 SSL 证书办法机构。有些机构不会给私有 IP 颁发 SSL 证书。The Certificate Authority&#x2F;Browser Forum doesn’t like seeing private IPs in certs but has nothing against public IPs. Let’s Encrypt 不会给 IP 地址颁发证书</li>
+</ol>
+<p>参考链接：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/2043617/is-it-possible-to-have-ssl-certificate-for-ip-address-not-domain-name">StackOverflow: Is it possible to have SSL certificate for IP address, not domain name?</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/1095780/are-ssl-certificates-bound-to-the-servers-ip-address">StackOverflow: Are SSL certificates bound to the servers IP address?</a></li>
+</ol>
+<blockquote>
+<p>openssl 貌似是使用 ip 查找证书？如何处理 CDN？</p>
+</blockquote>
+<blockquote>
+<p>webhook?</p>
+</blockquote>
+<p>Webhook 是一种基于 HTTP 的<strong>回调函数</strong>，可在两个 API 之间实现<strong>事件驱动</strong>的轻量级通信，也有人称之为 “反向 API”。</p>
+<p>当客户端 API 从服务器 API 请求数据时，客户端需要以固定间隔向服务端发送 HTTP 请求（轮询），若服务端数据发生了变化，服务器 API 会发送相关的数据（也称为 payload）。</p>
+<p>这种方式需要客户端不断发送请求以追踪服务端数据变化。在使用 Webhook 时，客户端向服务器 API 提供唯一的 URL，并指定要了解的事件。设置 Webhook 后，客户端不再需要轮询服务器。发生特定的事件时，服务器会自动将相关的有效负载发送到客户端的 Webhook URL。</p>
+<p>参考链接：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Webhook">Wikipedia: Webhook</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.redhat.com/zh/topics/automation/what-is-a-webhook">什么是 Webhook？</a></li>
+<li><a target="_blank" rel="noopener" href="https://progrium.github.io/blog/2007/05/03/web-hooks-to-revolutionize-the-web/">Web hooks to revolutionize the web</a></li>
+</ol>
+<blockquote>
+<p>localhost, loopback, local network 和 link local 之间的区别？</p>
+</blockquote>
+<ol>
+<li>localhost: 本地计算机自己，一般映射到 127.0.0.1 (IPv4) 或 ::1 (IPv6)</li>
+<li>loopback: 回环（地址），用来与自己通信，从源发出的信息又回到源。一般用来 debug、测试或与内部服务器通信。<ol>
+<li>ipv4 127 打头的都是回环地址，127.0.0.1 - 127.255.255.255 即 127.0.0.0&#x2F;8 </li>
+<li>ipv6 ::1&#x2F;128</li>
+</ol>
+</li>
+<li>local network：本地网络，本地子网，包含在同一网段内的所有设备的集合。<ol>
+<li>家庭网络 <strong>192.168.1.0&#x2F;24</strong></li>
+<li>办公网络 <strong>10.0.0.0&#x2F;8，172.16.0.0&#x2F;12</strong></li>
+<li>ipv6: fd00::</li>
+</ol>
+</li>
+<li>link local: “Link-local” refers to a special range of addresses used for network configuration on a single network link (like a segment of a larger network). These addresses allow devices to communicate with each other when there’s no central DHCP server. Link-local addresses are often used for auto-configuration in the absence of DHCP.<ol>
+<li>ipv4: <strong>169.254.0.0 - 169.254.255.255</strong></li>
+<li>ipv6: fe80::&#x2F;10 以 fe80 打头的</li>
+</ol>
+</li>
+</ol>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://shansan.top/2021/11/27/loopback-addr/">回环地址的一点儿破事</a></p>
+<blockquote>
+<p>0.0.0.0 是什么地址？</p>
+</blockquote>
+<p><code>0.0.0.0</code> 指不可路由的元地址（a non-routable meta-address），一般用来表示一个无效、未知或不可用的目标，可以理解成<strong>the “no particular address” placeholder.</strong> So，0.0.0.0 的意思就是没有地址 emmm。IPv6 可以写成 <code>::</code> 或 <code>::/0</code></p>
+<p><code>0.0.0.0</code> 在不同的场景下有不同的意义：</p>
+<ol>
+<li>In the context of <strong>servers</strong>, 0.0.0.0 means “all IPv4 addresses on the local machine”. <code>listen 0.0.0.0</code> 会监听本机上的所有IPV4地址。</li>
+<li>In the context of <strong>routing</strong>, 0.0.0.0 usually means the default route. 默认路由。</li>
+</ol>
+<p>用法：</p>
+<ol>
+<li>在通过 DHCP 分配到 IP 地址之前，主机可以使用 <code>0.0.0.0</code> 表示自己</li>
+<li>A way to explicitly specify that the target is unavailable.</li>
+<li>A way to specify “any IPv4 address at all”. It is used in this way when configuring servers (i.e. when binding listening sockets). This is known to TCP programmers as <code>INADDR_ANY</code></li>
+</ol>
+<p>参考链接：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://superuser.com/questions/949428/whats-the-difference-between-127-0-0-1-and-0-0-0-0">What’s the difference between 127.0.0.1 and 0.0.0.0?</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/0.0.0.0">wikipedia: 0.0.0.0</a></li>
+</ol>
+<h1 id="附"><a href="#附" class="headerlink" title="附"></a>附</h1><p><code>url_blocker.rb</code> 的全注释代码：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># frozen_string_literal: true</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">require</span> <span class="string">&#x27;resolv&#x27;</span></span><br><span class="line"><span class="keyword">require</span> <span class="string">&#x27;ipaddress&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">module</span> <span class="title class_">Gitlab</span></span><br><span class="line">  <span class="keyword">class</span> <span class="title class_">UrlBlocker</span></span><br><span class="line">    <span class="title class_">BlockedUrlError</span> = <span class="title class_">Class</span>.new(<span class="title class_">StandardError</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> &lt;&lt; <span class="variable language_">self</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">validate!</span>(<span class="params">url, <span class="symbol">ports:</span> [], <span class="symbol">protocols:</span> [], <span class="symbol">allow_localhost:</span> <span class="literal">false</span>, <span class="symbol">allow_local_network:</span> <span class="literal">true</span>, <span class="symbol">ascii_only:</span> <span class="literal">false</span>, <span class="symbol">enforce_user:</span> <span class="literal">false</span>, <span class="symbol">enforce_sanitization:</span> <span class="literal">false</span></span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span> <span class="keyword">if</span> url.<span class="literal">nil</span>?</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Param url can be a string, URI or Addressable::URI</span></span><br><span class="line">        uri = parse_url(url)</span><br><span class="line"></span><br><span class="line">        validate_html_tags!(uri) <span class="keyword">if</span> enforce_sanitization</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Allow imports from the GitLab instance itself but only from the configured ports</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span> <span class="keyword">if</span> internal?(uri)</span><br><span class="line"></span><br><span class="line">        port = get_port(uri)</span><br><span class="line">        validate_protocol!(uri.scheme, protocols)</span><br><span class="line">        validate_port!(port, ports) <span class="keyword">if</span> ports.any?</span><br><span class="line">        validate_user!(uri.user) <span class="keyword">if</span> enforce_user</span><br><span class="line">        validate_hostname!(uri.hostname)</span><br><span class="line">        validate_unicode_restriction!(uri) <span class="keyword">if</span> ascii_only</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 判断是否可以 DNS 解析，以验证 url 合理性。返回一个 bool 变量也就意味着 http 请求该 url 时仍会进行一次 DNS 解析以获取 ip 地址，从而产生 TOCTOU 逻辑漏洞</span></span><br><span class="line">        <span class="keyword">begin</span> </span><br><span class="line">          addrs_info = <span class="title class_">Addrinfo</span>.getaddrinfo(uri.hostname, port, <span class="literal">nil</span>, <span class="symbol">:STREAM</span>).map <span class="keyword">do</span> |<span class="params">addr</span>|</span><br><span class="line">            addr.ipv6_v4mapped? ? addr.ipv6_to_ipv4 : addr <span class="comment"># 如果是 ipv4 映射到 ipv6 地址空间的，调用 .ipv6_to_ipv4</span></span><br><span class="line">          <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">rescue</span> <span class="title class_">SocketError</span></span><br><span class="line">          <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">        validate_localhost!(addrs_info) <span class="keyword">unless</span> allow_localhost</span><br><span class="line">        validate_loopback!(addrs_info) <span class="keyword">unless</span> allow_localhost</span><br><span class="line">        validate_local_network!(addrs_info) <span class="keyword">unless</span> allow_local_network</span><br><span class="line">        validate_link_local!(addrs_info) <span class="keyword">unless</span> allow_local_network</span><br><span class="line"></span><br><span class="line">        <span class="literal">true</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="comment"># ？ 表示该方法会返回一个 boolean 值</span></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">blocked_url?</span>(<span class="params">*args</span>)</span><br><span class="line">        validate!(*args)</span><br><span class="line"></span><br><span class="line">        <span class="literal">false</span></span><br><span class="line">      <span class="keyword">rescue</span> <span class="title class_">BlockedUrlEr</span>    ror</span><br><span class="line">        <span class="literal">true</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">private</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">get_port</span>(<span class="params">uri</span>)</span><br><span class="line">        uri.port |<span class="params"></span>| uri.default_port</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="comment"># ！ a convention indicating that the method performs a potentially dangerous operation or raises an exception in certain conditions</span></span><br><span class="line">      <span class="comment"># ! 表示方法有危险操作或会抛出异常</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">validate_html_tags!</span>(<span class="params">uri</span>)</span><br><span class="line">        uri_str = uri.to_s</span><br><span class="line">        <span class="comment"># 移除 uri 中所有的 html 标签</span></span><br><span class="line">        sanitized_uri = <span class="title class_">ActionController</span><span class="symbol">:</span><span class="symbol">:Base</span>.helpers.sanitize(uri_str, <span class="symbol">tags:</span> []) </span><br><span class="line">        <span class="comment"># he tags: [] argument specifies that no HTML tags are allowed, ensuring a clean and safe string</span></span><br><span class="line">        <span class="keyword">if</span> sanitized_uri != uri_str</span><br><span class="line">          <span class="keyword">raise</span> <span class="title class_">BlockedUrlError</span>, <span class="string">&#x27;HTML/CSS/JS tags are not allowed&#x27;</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">parse_url</span>(<span class="params">url</span>)</span><br><span class="line">        <span class="keyword">raise</span> <span class="title class_">Addressable</span><span class="symbol">:</span><span class="symbol">:URI</span><span class="symbol">:</span><span class="symbol">:InvalidURIError</span> <span class="keyword">if</span> multiline?(url)</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Addressable</span><span class="symbol">:</span><span class="symbol">:URI</span>.parse(url)</span><br><span class="line">      <span class="keyword">rescue</span> <span class="title class_">Addressable</span><span class="symbol">:</span><span class="symbol">:URI</span><span class="symbol">:</span><span class="symbol">:InvalidURIError</span>, <span class="variable constant_">URI</span><span class="symbol">:</span><span class="symbol">:InvalidURIError</span></span><br><span class="line">        <span class="keyword">raise</span> <span class="title class_">BlockedUrlError</span>, <span class="string">&#x27;URI is invalid&#x27;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">multiline?</span>(<span class="params">url</span>)</span><br><span class="line">        <span class="variable constant_">CGI</span>.unescape(url.to_s) =~ <span class="regexp">/\n|\r/</span> </span><br><span class="line">        <span class="comment"># =~ 表示匹配后面的正则，这里的正则分隔符为 / 也可以 %r (\n|\r) %r + 任意符号（会被当成分隔符</span></span><br><span class="line">        <span class="comment"># unescape() 解码，转义</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">validate_port!</span>(<span class="params">port, ports</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">if</span> port.blank?</span><br><span class="line">        <span class="comment"># Only ports under 1024 are restricted</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">if</span> port &gt;= <span class="number">1024</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">if</span> ports.<span class="keyword">include</span>?(port)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">raise</span> <span class="title class_">BlockedUrlError</span>, <span class="string">&quot;Only allowed ports are <span class="subst">#&#123;ports.join(<span class="string">&#x27;, &#x27;</span>)&#125;</span>, and any over 1024&quot;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">validate_protocol!</span>(<span class="params">protocol, protocols</span>)</span><br><span class="line">        <span class="keyword">if</span> protocol.blank? |<span class="params"></span>| (protocols.any? &amp;&amp; !protocols.<span class="keyword">include</span>?(protocol))</span><br><span class="line">          <span class="keyword">raise</span> <span class="title class_">BlockedUrlError</span>, <span class="string">&quot;Only allowed protocols are <span class="subst">#&#123;protocols.join(<span class="string">&#x27;, &#x27;</span>)&#125;</span>&quot;</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="comment"># protocols.any? checks if the protocols list has any elements</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">validate_user!</span>(<span class="params">value</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">if</span> value.blank?</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">if</span> value =~ <span class="regexp">/\A\p&#123;Alnum&#125;/</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">raise</span> <span class="title class_">BlockedUrlError</span>, <span class="string">&quot;Username needs to start with an alphanumeric character&quot;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">validate_hostname!</span>(<span class="params">value</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">if</span> value.blank?</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">if</span> <span class="title class_">IPAddress</span>.valid?(value)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">if</span> value =~ <span class="regexp">/\A\p&#123;Alnum&#125;/</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">raise</span> <span class="title class_">BlockedUrlError</span>, <span class="string">&quot;Hostname or IP address invalid&quot;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">validate_unicode_restriction!</span>(<span class="params">uri</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">if</span> uri.to_s.ascii_only?</span><br><span class="line"></span><br><span class="line">        <span class="keyword">raise</span> <span class="title class_">BlockedUrlError</span>, <span class="string">&quot;URI must be ascii only <span class="subst">#&#123;uri.to_s.dump&#125;</span>&quot;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">validate_localhost!</span>(<span class="params">addrs_info</span>)</span><br><span class="line">        local_ips = [<span class="string">&quot;::&quot;</span>, <span class="string">&quot;0.0.0.0&quot;</span>] <span class="comment"># 分别代表 ipv6, ipv4 下的地址通配符（本机所有地址）</span></span><br><span class="line">        local_ips.concat(<span class="title class_">Socket</span>.ip_address_list.map(&amp;<span class="symbol">:ip_address</span>))</span><br><span class="line">        <span class="comment"># Socket.ip_address_list 获取与系统网络接口相关的所有地址，包括 loopback addr, local network addr 等</span></span><br><span class="line">        <span class="comment"># .map(&amp;:ip_address) ：extract the IP address from each object in Socket.ip_address_list</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">if</span> (local_ips &amp; addrs_info.map(&amp;<span class="symbol">:ip_address</span>)).empty? <span class="comment"># 两数组交集为空</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">raise</span> <span class="title class_">BlockedUrlError</span>, <span class="string">&quot;Requests to localhost are not allowed&quot;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">validate_loopback!</span>(<span class="params">addrs_info</span>)</span><br><span class="line">        <span class="comment"># 不是回环地址 127.0.0.0/8 ::1</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">unless</span> addrs_info.any? &#123; |<span class="params">addr</span>| addr.ipv4_loopback? |<span class="params"></span>| addr.ipv6_loopback? &#125;</span><br><span class="line">        <span class="comment"># 类比 python 应该可以写成 any(addr.ipv4_loopback() or addr.ipv6_loopback() for addr in addrs_info)</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">raise</span> <span class="title class_">BlockedUrlError</span>, <span class="string">&quot;Requests to loopback addresses are not allowed&quot;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">validate_local_network!</span>(<span class="params">addrs_info</span>)</span><br><span class="line">        <span class="comment"># 不是私有地址 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 fd00::</span></span><br><span class="line">        <span class="comment"># site-local addresses in IPv6 were used to represent addresses valid only within a single site, similar to private IPv4 addresses. 不过已被弃用</span></span><br><span class="line">        <span class="comment"># unique local addresses are used for internal network communication across multiple subnets within an organization. 是 site-local addresses 的替代</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">unless</span> addrs_info.any? &#123; |<span class="params">addr</span>| addr.ipv4_private? |<span class="params"></span>| addr.ipv6_sitelocal? |<span class="params"></span>| addr.ipv6_unique_local? &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">raise</span> <span class="title class_">BlockedUrlError</span>, <span class="string">&quot;Requests to the local network are not allowed&quot;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">validate_link_local!</span>(<span class="params">addrs_info</span>)</span><br><span class="line">        netmask = <span class="title class_">IPAddr</span>.new(<span class="string">&#x27;169.254.0.0/16&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">unless</span> addrs_info.any? &#123; |<span class="params">addr</span>| addr.ipv6_linklocal? |<span class="params"></span>| netmask.<span class="keyword">include</span>?(addr.ip_address) &#125;</span><br><span class="line">        <span class="comment"># fe80::/10</span></span><br><span class="line">        <span class="comment"># Link-local addresses are used for operations that are local to a network segment, such as neighbor discovery, router advertisements, and auto-configuration of network interfaces.</span></span><br><span class="line">        <span class="comment"># 链路本地地址，用在本地网段的操作中。</span></span><br><span class="line">        <span class="keyword">raise</span> <span class="title class_">BlockedUrlError</span>, <span class="string">&quot;Requests to the link local network are not allowed&quot;</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">internal?</span>(<span class="params">uri</span>)</span><br><span class="line">        internal_web?(uri) |<span class="params"></span>| internal_shell?(uri)</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">internal_web?</span>(<span class="params">uri</span>)</span><br><span class="line">        uri.scheme == config.gitlab.protocol &amp;&amp;</span><br><span class="line">          uri.hostname == config.gitlab.host &amp;&amp;</span><br><span class="line">          (uri.port.blank? |<span class="params"></span>| uri.port == config.gitlab.port)</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">internal_shell?</span>(<span class="params">uri</span>)</span><br><span class="line">        uri.scheme == <span class="string">&#x27;ssh&#x27;</span> &amp;&amp;</span><br><span class="line">          uri.hostname == config.gitlab_shell.ssh_host &amp;&amp;</span><br><span class="line">          (uri.port.blank? |<span class="params"></span>| uri.port == config.gitlab_shell.ssh_port)</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">def</span> <span class="title function_">config</span></span><br><span class="line">        <span class="title class_">Gitlab</span>.config</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+  </div>
+
+  <!-- 版权声明 -->
+  
+
+
+</article>
+
+
+    <div class="blog-post-comments">
+        <div id="utterances_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">1 漏洞描述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC"><span class="toc-number">2.</span> <span class="toc-text">2 影响版本</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%A4%8D%E7%8E%B0%E6%B5%81%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">3 复现流程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E8%A1%8C%E4%B8%BA%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">4 行为分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E5%BD%93%E5%89%8D%E8%A1%8C%E4%B8%BA"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 当前行为</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-%E6%9C%9F%E6%9C%9B%E8%A1%8C%E4%B8%BA"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 期望行为</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">5.</span> <span class="toc-text">5 代码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-%E6%BC%8F%E6%B4%9E%E7%9B%B8%E5%85%B3%E4%BB%A3%E7%A0%81"><span class="toc-number">5.1.</span> <span class="toc-text">5.1 漏洞相关代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-2-%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D%E4%BB%A3%E7%A0%81"><span class="toc-number">5.2.</span> <span class="toc-text">5.2 漏洞修复代码</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98"><span class="toc-number">6.</span> <span class="toc-text">6 一些问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%99%84"><span class="toc-number">7.</span> <span class="toc-text">附</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2024/06/06/%E6%A1%88%E4%BE%8B%E7%A0%94%E7%A9%B6-SSRF+DNS_rebinding%E3%80%90$5000%E3%80%91/&title=案例研究-SSRF+DNS rebinding【$5000】"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023
+    CaiShao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+      <ul>
+        
+          <span id="busuanzi_container_site_pv">
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+          </span>
+          <span class="post-meta-divider"> | </span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+                本站访客数<span id="busuanzi_value_site_uv"></span>人
+          </span>
+        <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+    <script type="text/javascript">
+      var utterances_repo = 'BY-musi/BY-musi.github.io';
+      var utterances_issue_term = 'pathname';
+      var utterances_label = 'comment';
+      var utterances_theme = 'photon-dark';
+
+      (function(){
+          var script = document.createElement('script');
+
+          script.src = 'https://utteranc.es/client.js';
+          script.setAttribute('repo', utterances_repo);
+          script.setAttribute('issue-term', 'pathname');
+          script.setAttribute('label', utterances_label);
+          script.setAttribute('theme', utterances_theme);
+          script.setAttribute('crossorigin', 'anonymous');
+          script.async = true;
+          (document.getElementById('utterances_thread')).appendChild(script);
+      }());
+  </script>
+
+
+<!-- FancyBox -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+  <script>
+    Fancybox.bind('[data-fancybox="gallery"]', {
+      //
+    });    
+  </script>
+
+
+<!-- Copyright -->
+
+</body>
+</html>
