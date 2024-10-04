@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="1 背景在推特上看到一个 XSS chanllege，凭借我shi一样的代码审计能力，当然是没有做出来，时间都花在分析正则表达式上了，唉。看了答案之后，其实也并不很难，好多点我也注意到了，比方说参数targetUrl 被提取了两次，但我把 [?|&amp;] 理解错了，所以一直找不到利用方式（还得多练emmm） 2 描述打开网页后，映入眼帘的是一个重定向，参数名为 targetUrl。不说这是个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xss challenge--正则，一生之敌！">
+<meta property="og:url" content="https://by-musi.github.io/2024/10/04/xss_challenge--%E6%AD%A3%E5%88%99%EF%BC%8C%E4%B8%80%E7%94%9F%E4%B9%8B%E6%95%8C%EF%BC%81/index.html">
+<meta property="og:site_name" content="OhMyDarkSpace">
+<meta property="og:description" content="1 背景在推特上看到一个 XSS chanllege，凭借我shi一样的代码审计能力，当然是没有做出来，时间都花在分析正则表达式上了，唉。看了答案之后，其实也并不很难，好多点我也注意到了，比方说参数targetUrl 被提取了两次，但我把 [?|&amp;] 理解错了，所以一直找不到利用方式（还得多练emmm） 2 描述打开网页后，映入眼帘的是一个重定向，参数名为 targetUrl。不说这是个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/10/04/Pasted_image_20241004095821.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/10/04/Pasted_image_20241004102426.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/10/04/Pasted_image_20241004110105.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/10/04/Pasted_image_20241004145506.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2024/10/04/Pasted_image_20241004151351.png">
+<meta property="article:published_time" content="2024-10-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-10-03T16:00:00.000Z">
+<meta property="article:author" content="CaiShao">
+<meta property="article:tag" content="XSS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://by-musi.github.io/images/2024/10/04/Pasted_image_20241004095821.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>xss challenge--正则，一生之敌！</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+
+  <!-- fancybox -->
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="OhMyDarkSpace" type="application/atom+xml">
+<link rel="alternate" href="/rss2.xml" title="OhMyDarkSpace" type="application/rss+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/09/11/PortSwigger_web_cache_deception_labs/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2024/10/04/xss_challenge--%E6%AD%A3%E5%88%99%EF%BC%8C%E4%B8%80%E7%94%9F%E4%B9%8B%E6%95%8C%EF%BC%81/&title=xss challenge--正则，一生之敌！"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">1 背景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%8F%8F%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">2 描述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">3 分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">4 参考</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        xss challenge--正则，一生之敌！
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">CaiShao</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-10-03T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-10-04</time>
+        
+        (Updated: <time datetime="2024-10-03T16:00:00.000Z" class="dt-updated" itemprop="dateModified">2024-10-04</time>)
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/XSS/" rel="tag">XSS</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="1-背景"><a href="#1-背景" class="headerlink" title="1 背景"></a>1 背景</h1><p>在推特上看到一个 <a target="_blank" rel="noopener" href="https://x.com/fransrosen/status/1828503460183941420">XSS chanllege</a>，凭借我shi一样的代码审计能力，当然是没有做出来，时间都花在分析正则表达式上了，唉。看了答案之后，其实也并不很难，好多点我也注意到了，比方说参数<code>targetUrl</code> 被提取了两次，但我把 <code>[?|&amp;]</code> 理解错了，所以一直找不到利用方式（还得多练emmm）</p>
+<h1 id="2-描述"><a href="#2-描述" class="headerlink" title="2 描述"></a>2 描述</h1><p>打开网页后，映入眼帘的是一个重定向，参数名为 <code>targetUrl</code>。不说这是个 XSS 题，我还以为要 SSRF 呢。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/10/04/Pasted_image_20241004095821.png" data-caption=""><img src="/images/2024/10/04/Pasted_image_20241004095821.png"></a></p>
+<h1 id="3-分析"><a href="#3-分析" class="headerlink" title="3 分析"></a>3 分析</h1><p>首先依旧是看源码（如下），总共有两个函数 <code>getQuerystring()</code> 和 <code>queryPass()</code>，主函数为后者。有两种方式调用 <code>queryPass()</code> 函数，一种是 <code>setTimeout</code>，打开页面五秒后自动调用；一种是点击按钮 “Go go go” 后调用。而 <code>queryPass()</code> 只干了一件事，将 <code>location.href</code> 设置为 <code>getQuerystring()</code> 的返回值。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="title function_">queryPass</span>();</span><br><span class="line">&#125;, <span class="number">5000</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getQuerystring</span>(<span class="params">key, default_</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> regex =</span><br><span class="line">    <span class="regexp">/^((([A-Za-z]&#123;4,5&#125;:(?:\/\/)?)(?:[-;:&amp;=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&amp;=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&amp;;%@.\w_]*)#?(?:[\w]*))?)$/</span>;</span><br><span class="line">  <span class="keyword">var</span> url = <span class="title function_">getURLParameter</span>(<span class="string">&quot;targetUrl&quot;</span>);</span><br><span class="line">  <span class="keyword">var</span> urlParts = url</span><br><span class="line">    .<span class="title function_">replace</span>(<span class="string">&quot;http://&quot;</span>, <span class="string">&quot;&quot;</span>)</span><br><span class="line">    .<span class="title function_">replace</span>(<span class="string">&quot;https://&quot;</span>, <span class="string">&quot;&quot;</span>)</span><br><span class="line">    .<span class="title function_">split</span>(<span class="regexp">/[/?#]/</span>);</span><br><span class="line">  <span class="keyword">var</span> domain = urlParts[<span class="number">0</span>];</span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">getURLParameter</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      <span class="built_in">decodeURIComponent</span>(</span><br><span class="line">        (<span class="keyword">new</span> <span class="title class_">RegExp</span>(<span class="string">&quot;[?|&amp;]&quot;</span> + name + <span class="string">&quot;=&quot;</span> + <span class="string">&quot;([^&amp;;]+?)(&amp;|#|;|$)&quot;</span>).<span class="title function_">exec</span>(</span><br><span class="line">          location.<span class="property">search</span></span><br><span class="line">        ) || [<span class="literal">null</span>, <span class="string">&quot;&quot;</span>])[<span class="number">1</span>].<span class="title function_">replace</span>(<span class="regexp">/\+/g</span>, <span class="string">&quot;%20&quot;</span>)</span><br><span class="line">      ) || <span class="literal">null</span></span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (</span><br><span class="line">    domain.<span class="title function_">indexOf</span>(<span class="string">&quot;fransrosen.com&quot;</span>) == -<span class="number">1</span> &amp;&amp;</span><br><span class="line">    domain.<span class="title function_">indexOf</span>(<span class="string">&quot;fransrosen.se&quot;</span>) == -<span class="number">1</span></span><br><span class="line">  ) &#123;</span><br><span class="line">    url = <span class="string">&quot;https://www.fransrosen.com&quot;</span>;</span><br><span class="line">    <span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">href</span> = url;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (</span><br><span class="line">    !(</span><br><span class="line">      url &amp;&amp;</span><br><span class="line">      (url.<span class="title function_">indexOf</span>(<span class="string">&quot;fransrosen.com&quot;</span>) &gt; -<span class="number">1</span> ||</span><br><span class="line">        url.<span class="title function_">indexOf</span>(<span class="string">&quot;fransrosen.se&quot;</span>) &gt; -<span class="number">1</span>) &amp;&amp;</span><br><span class="line">      regex.<span class="title function_">test</span>(url)</span><br><span class="line">    )</span><br><span class="line">  ) &#123;</span><br><span class="line">    url = <span class="string">&quot;https://www.fransrosen.com&quot;</span>;</span><br><span class="line">    <span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">href</span> = url;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (default_ == <span class="literal">null</span>) default_ = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    key = key.<span class="title function_">replace</span>(<span class="regexp">/[\[]/</span>, <span class="string">&quot;\\[&quot;</span>).<span class="title function_">replace</span>(<span class="regexp">/[\]]/</span>, <span class="string">&quot;\\]&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> regex = <span class="keyword">new</span> <span class="title class_">RegExp</span>(<span class="string">&quot;[\\?&amp;]&quot;</span> + key + <span class="string">&quot;=([^\0]*)&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> qs = regex.<span class="title function_">exec</span>(<span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">href</span>);</span><br><span class="line">    retVal = qs == <span class="literal">null</span> ? default_ : qs[<span class="number">1</span>] == <span class="string">&quot;&quot;</span> ? <span class="string">&quot;&quot;</span> : qs[<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">return</span> retVal;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;url-continue&quot;</span>).<span class="title function_">addEventListener</span>(<span class="string">&quot;click&quot;</span>, <span class="keyword">function</span> (<span class="params">e</span>) &#123;</span><br><span class="line">  e.<span class="title function_">preventDefault</span>();</span><br><span class="line">  <span class="title function_">queryPass</span>();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">queryPass</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="title function_">getQuerystring</span>(<span class="string">&quot;targetUrl&quot;</span>)) &#123;</span><br><span class="line">    location.<span class="property">href</span> = <span class="built_in">unescape</span>(<span class="title function_">getQuerystring</span>(<span class="string">&quot;targetUrl&quot;</span>));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>getQuerystring()</code> 函数开始就是一个正则 <code>/^((([A-Za-z]&#123;4,5&#125;:(?:\/\/)?)(?:[-;:&amp;=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&amp;=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&amp;;%@.\w_]*)#?(?:[\w]*))?)$/</code>，不过用不用得到分析一下，权当练手了。</p>
+<p>结构化展示如下，用来匹配 URL 的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">^(</span><br><span class="line">  (</span><br><span class="line">    ([A-Za-z]&#123;4,5&#125;:(?:\/\/)?)              </span><br><span class="line">    (?:[-;:&amp;=\+\$,\w]+@)?[A-Za-z0-9.-]+    </span><br><span class="line">    |</span><br><span class="line">    (?:www.|[-;:&amp;=\+\$,\w]+@)[A-Za-z0-9.-]+</span><br><span class="line">  )</span><br><span class="line">  (</span><br><span class="line">    (?:\/[\+~%\/.\w-_]*)?                  </span><br><span class="line">    \???:[-\+=&amp;;%@.\w_]*)                  </span><br><span class="line">    #?(?:[\w]*)                            </span><br><span class="line">  )?                                       </span><br><span class="line">)$</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>([A-Za-z]&#123;4,5&#125;:(?:\/\/)?)</code> 匹配 URL 的协议部分，如：https:&#x2F;&#x2F;, ftp:，<code>(?:...)</code> 表示非捕获组，匹配的内容不会被保存，不影响分组的编号</li>
+<li><code>(?:[-;:&amp;=\+\$,\w]+@)?[A-Za-z0-9.-]+</code> 匹配用户信息前缀(HTTP身份验证)+主机名，如： expected-host:fakepassword@evil-host（想到橘师傅那篇 SSRF 的文章了…）</li>
+<li><code>(?:www.|[-;:&amp;=\+\$,\w]+@)[A-Za-z0-9.-]+</code> 匹配无协议头(scheme) 的 url</li>
+<li><code>(?:\/[\+~%\/.\w-_]*)?</code> 匹配路径，以 &#x2F; 打头，如： &#x2F;my+path, &#x2F;users&#x2F;~john&#x2F;documents, &#x2F;encoded%20value, &#x2F;path&#x2F;to&#x2F;file.html</li>
+<li><code>\??(?:[-\+=&amp;;%@.\w_]*)</code> 匹配查询参数，以 ? 打头</li>
+<li><code>#?(?:[\w]*)</code> 匹配片段标识符，hash #</li>
+</ul>
+<p>这有个工具 <a target="_blank" rel="noopener" href="https://regexper.com/">Regexper</a> 可以帮助分析正则表达式。怎么样？是不是一目了然？！看到这张图的时候，我感觉分析了这个正则好长好长时间的我真纯纯🤡 emmm</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/10/04/Pasted_image_20241004102426.png" data-caption=""><img src="/images/2024/10/04/Pasted_image_20241004102426.png"></a></p>
+<p>既然是 XSS，又要传 URL，显然应该用 <code>javascript:</code> 伪协议执行 js 代码。上图红框框住的这条路径允许使用  以内的字符，故可以传入 <code>javascript:</code>，但只有这些个字符如何执行任意 js 代码呢？后面还有个 <code>@</code> 符号，没法用 <code>//</code> 把它注释掉。</p>
+<blockquote>
+<p>如何只使用 <code>-;:&amp;=+$,\w</code> 中的字符执行 js？</p>
+<p>搞不懂 (个_个)</p>
+</blockquote>
+<p>再次查看源码，发现参数 <code>targetUrl</code> 被提取了两次：一次是在 <code>getURLParameter</code> 获取参数的时候，用以验证输入有效性；一次是在 <code>else</code> 条件分支使用参数的时候，用来执行具体操作。应该可以算 TOCTOU (time of check, time of use)。</p>
+<p><a data-fancybox="gallery" data-src="/images/2024/10/04/Pasted_image_20241004110105.png" data-caption=""><img src="/images/2024/10/04/Pasted_image_20241004110105.png"></a></p>
+<p>由此形成思路，构造的 payload 需要绕过验证顺利进入 <code>else</code> 分支，进入条件为：1. url 不为空；2. domain 部分包含 fransrosen.com 或 fransrosen.se；3. regex.test(url) 为 true。之后，在 <code>else</code> 分支中重新提取参数信息，返回值赋给 <code>location.href</code>，从而执行任意 js 代码。</p>
+<p>注意两次提取参数的方式也有所不同，第一次在<code>getURLParameter()</code> 函数中，使用的正则是 <code>&quot;[?|&amp;]targetUrl=([^&amp;;]+?)(&amp;|#|;|$)</code> 其中 <strong><code>[?|&amp;]</code> 中的 <code>|</code> 并不是“或”的意思，而是原本的 “|” 号，匹配的是三种字符 <code>?|&amp;</code> 及其组合。</strong></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/10/04/Pasted_image_20241004145506.png" data-caption=""><img src="/images/2024/10/04/Pasted_image_20241004145506.png"></a></p>
+<p>第二次在 <code>else</code> 分支中，使用的是 <code>[\\?&amp;]targetUrl=([^\0]*)</code>。不难发现，对于 <code>?|targetUrl=...</code>，第一次能匹配到参数的值，但第二个正则匹配不到，因为 <code>targetUrl</code> 前面是 |，而不是 ? 或 &amp;。</p>
+<p>所以，如果我们提供两个 <code>targetUrl</code> 参数，<code>?|targetUrl</code> 和 <code>&amp;targetUrl</code>，这两个正则会分别匹配到不同的参数值，正则一由于未使用修饰符 <code>g</code>，仅返回第一个匹配项，故只能匹配到 <code>?|targetUrl</code>，用来绕过验证；正则二匹配到 <code>&amp;targetUrl</code> 的值，用来将恶意 js 赋值给 <code>location.href</code>。</p>
+<p>构造 payload: <code>?|targetUrl=www.fransrosen.com&amp;targetUrl=javascript:alert(0)</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2024/10/04/Pasted_image_20241004151351.png" data-caption=""><img src="/images/2024/10/04/Pasted_image_20241004151351.png"></a><br>PS: 赶紧学习正则表达式，再不学就自己会了。。。。。</p>
+<h1 id="4-参考"><a href="#4-参考" class="headerlink" title="4 参考"></a>4 参考</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://x.com/fransrosen/status/1828503460183941420">XSS-challenge</a></li>
+<li><a target="_blank" rel="noopener" href="http://regexper.com/">http://regexper.com</a></li>
+</ol>
+
+  </div>
+
+  <!-- 版权声明 -->
+  
+
+
+</article>
+
+
+    <div class="blog-post-comments">
+        <div id="utterances_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">1 背景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%8F%8F%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">2 描述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">3 分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">4 参考</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2024/10/04/xss_challenge--%E6%AD%A3%E5%88%99%EF%BC%8C%E4%B8%80%E7%94%9F%E4%B9%8B%E6%95%8C%EF%BC%81/&title=xss challenge--正则，一生之敌！"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    CaiShao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+      <ul>
+        
+          <span id="busuanzi_container_site_pv">
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+          </span>
+          <span class="post-meta-divider"> | </span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+                本站访客数<span id="busuanzi_value_site_uv"></span>人
+          </span>
+        <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+    <script type="text/javascript">
+      var utterances_repo = 'BY-musi/BY-musi.github.io';
+      var utterances_issue_term = 'pathname';
+      var utterances_label = 'comment';
+      var utterances_theme = 'photon-dark';
+
+      (function(){
+          var script = document.createElement('script');
+
+          script.src = 'https://utteranc.es/client.js';
+          script.setAttribute('repo', utterances_repo);
+          script.setAttribute('issue-term', 'pathname');
+          script.setAttribute('label', utterances_label);
+          script.setAttribute('theme', utterances_theme);
+          script.setAttribute('crossorigin', 'anonymous');
+          script.async = true;
+          (document.getElementById('utterances_thread')).appendChild(script);
+      }());
+  </script>
+
+
+<!-- FancyBox -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+  <script>
+    Fancybox.bind('[data-fancybox="gallery"]', {
+      //
+    });    
+  </script>
+
+
+<!-- Copyright -->
+
+</body>
+</html>
