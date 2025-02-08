@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="距上次发文隔了好久，hexo 命令都忘了 emmm 1 Lab: Remote code execution via web shell upload1&lt;?php echo file_get_contents(&#x27;&#x2F;home&#x2F;carlos&#x2F;secret&#x27;); ?&gt;   头像上传模块未添加任何限制，直接上传 PHP 文件即可。    查看头像访问路径。    2 Lab">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PortSwigger file upload labs">
+<meta property="og:url" content="https://by-musi.github.io/2025/02/08/PortSwigger_file_upload_labs/index.html">
+<meta property="og:site_name" content="OhMyDarkSpace">
+<meta property="og:description" content="距上次发文隔了好久，hexo 命令都忘了 emmm 1 Lab: Remote code execution via web shell upload1&lt;?php echo file_get_contents(&#x27;&#x2F;home&#x2F;carlos&#x2F;secret&#x27;); ?&gt;   头像上传模块未添加任何限制，直接上传 PHP 文件即可。    查看头像访问路径。    2 Lab">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118132455.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118133008.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118134030.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118134100.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118132920.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118133424.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118133605.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118133729.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118223049.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118223413.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118223609.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118223957.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118224043.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118224451.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118224531.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118225408.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118225734.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118230324.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118230402.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118230858.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118230746.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118231416.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118231543.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118231955.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118231836.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118232211.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119153925.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119154103.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119154202.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119154253.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119154441.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119155021.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119161914.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119160029.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119162020.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119162951.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119163139.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119163442.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119203002.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119203206.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119203819.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119214819.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119213313.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240119213539.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20250206170332.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20250206170900.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20250206171201.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20250206172330.png">
+<meta property="og:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20250206172800.png">
+<meta property="article:published_time" content="2025-02-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-02-07T16:00:00.000Z">
+<meta property="article:author" content="CaiShao">
+<meta property="article:tag" content="file upload">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://by-musi.github.io/images/2025/02/08/Pasted_image_20240118132455.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>PortSwigger file upload labs</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+
+  <!-- fancybox -->
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+  
+<meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="OhMyDarkSpace" type="application/atom+xml">
+<link rel="alternate" href="/rss2.xml" title="OhMyDarkSpace" type="application/rss+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/10/04/xss_challenge--%E6%AD%A3%E5%88%99%EF%BC%8C%E4%B8%80%E7%94%9F%E4%B9%8B%E6%95%8C%EF%BC%81/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2025/02/08/PortSwigger_file_upload_labs/&title=PortSwigger file upload labs"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Lab-Remote-code-execution-via-web-shell-upload"><span class="toc-number">1.</span> <span class="toc-text">1 Lab: Remote code execution via web shell upload</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Lab-Web-shell-upload-via-Content-Type-restriction-bypass"><span class="toc-number">2.</span> <span class="toc-text">2 Lab: Web shell upload via Content-Type restriction bypass</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Lab-Web-shell-upload-via-path-traversal"><span class="toc-number">3.</span> <span class="toc-text">3 Lab: Web shell upload via path traversal</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Lab-Web-shell-upload-via-extension-blacklist-bypass"><span class="toc-number">4.</span> <span class="toc-text">4 Lab: Web shell upload via extension blacklist bypass</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Lab-Web-shell-upload-via-obfuscated-file-extension"><span class="toc-number">5.</span> <span class="toc-text">5 Lab: Web shell upload via obfuscated file extension</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-Lab-Remote-code-execution-via-polyglot-web-shell-upload"><span class="toc-number">6.</span> <span class="toc-text">6 Lab: Remote code execution via polyglot web shell upload</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-Lab-Web-shell-upload-via-race-condition"><span class="toc-number">7.</span> <span class="toc-text">7 Lab: Web shell upload via race condition</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        PortSwigger file upload labs
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">CaiShao</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-02-07T16:00:00.000Z" class="dt-published" itemprop="datePublished">2025-02-08</time>
+        
+        (Updated: <time datetime="2025-02-07T16:00:00.000Z" class="dt-updated" itemprop="dateModified">2025-02-08</time>)
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/file-upload/" rel="tag">file upload</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>距上次发文隔了好久，<code>hexo</code> 命令都忘了 emmm</p>
+<h1 id="1-Lab-Remote-code-execution-via-web-shell-upload"><a href="#1-Lab-Remote-code-execution-via-web-shell-upload" class="headerlink" title="1 Lab: Remote code execution via web shell upload"></a>1 Lab: Remote code execution via web shell upload</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> <span class="keyword">echo</span> <span class="title function_ invoke__">file_get_contents</span>(<span class="string">&#x27;/home/carlos/secret&#x27;</span>); <span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118132455.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118132455.png"></a></p>
+<p>头像上传模块未添加任何限制，直接上传 PHP 文件即可。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118133008.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118133008.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118134030.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118134030.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118134100.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118134100.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118132920.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118132920.png"></a><br>查看头像访问路径。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118133424.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118133424.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118133605.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118133605.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118133729.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118133729.png"></a></p>
+<h1 id="2-Lab-Web-shell-upload-via-Content-Type-restriction-bypass"><a href="#2-Lab-Web-shell-upload-via-Content-Type-restriction-bypass" class="headerlink" title="2 Lab: Web shell upload via Content-Type restriction bypass"></a>2 Lab: Web shell upload via Content-Type restriction bypass</h1><p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118223049.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118223049.png"></a></p>
+<p>下面是 <code>username</code> 和 <code>csrf token</code> 没截上，不过也用不上。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118223413.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118223413.png"></a></p>
+<p>响应是个 403，且提示 “Sorry, file type application&#x2F;x-php is not allowed, Only image&#x2F;jpeg and image&#x2F;png are allowed”，这里的 <code>application/x-php</code> 恰好是 <code>Content-Type</code> 的内容。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118223609.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118223609.png"></a></p>
+<p>思路：将对应的 <code>Content-Type</code> 修改为 <code>image/jpeg</code> 或 <code>image/png</code> 如果只检查该头部的话，应该就能上传出成功了。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118223957.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118223957.png"></a></p>
+<p>响应状态码是 200 上传成功。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118224043.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118224043.png"></a></p>
+<p>请求一下该 “头像”，这里可以刷新一下浏览器页面，之后在 Proxy -&gt; 的 HTTP history 部分找 <code>/files/avatars/test.php</code> 请求（见 Lab 1），也可以直接请求该接口。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118224451.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118224451.png"></a><br>响应 200，成功。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118224531.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118224531.png"></a></p>
+<h1 id="3-Lab-Web-shell-upload-via-path-traversal"><a href="#3-Lab-Web-shell-upload-via-path-traversal" class="headerlink" title="3 Lab: Web shell upload via path traversal"></a>3 Lab: Web shell upload via path traversal</h1><p>首先，上传 <code>test.php</code>，轻而易举，轻车熟路！</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118225408.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118225408.png"></a></p>
+<p>但是当请求接口 <code>/file/avatars/test.php</code> 时，响应并未执行 <code>test.php</code> 而是把它当作文本传输了出来。要这么玩我可就不高兴了。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118225734.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118225734.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118230324.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118230324.png"></a></p>
+<p>但响应中却仍然提示 “The file <strong>avatars&#x2F;test2.php</strong> has been uploaded.”，难道只是名字没改？其实文件是上传到了 <code>/file/</code> 下？</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118230402.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118230402.png"></a></p>
+<p>请求 <code>/files/test2.php</code> –&gt; 404</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118230858.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118230858.png"></a></p>
+<p>请求 <code>/files/avatars/test2.php</code> –&gt; 200</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118230746.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118230746.png"></a></p>
+<p>裂开，没上传成功。</p>
+<p>使用 URL 编码，遇到问题先考虑编码绕过，还真给上传上了。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118231416.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118231416.png"></a></p>
+<p>虽然但是，我传的文件去哪了？</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118231543.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118231543.png"></a></p>
+<p>保守一点，上传到上一级目录吧，也就是 <code>files/</code>，<code>filename=&quot;%2e%2e%2ftest3.php&quot;</code> 响应提示上传成功。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118231955.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118231955.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118231836.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118231836.png"></a></p>
+<p>收工。</p>
+<p>至于上面上传 <code>%2e%2e%2f%2e%2e%2ftest2.php</code> 的问题，我发现当时我给写错了，多加了一个 ‘.’，<code>.%2e%2e%2f%2e%2e%2ftest2.php</code>，后面我又试了一下，没上传成功。可能是服务端不让在根目录下上传？</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240118232211.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240118232211.png"></a></p>
+<h1 id="4-Lab-Web-shell-upload-via-extension-blacklist-bypass"><a href="#4-Lab-Web-shell-upload-via-extension-blacklist-bypass" class="headerlink" title="4 Lab: Web shell upload via extension blacklist bypass"></a>4 Lab: Web shell upload via extension blacklist bypass</h1><p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119153925.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119153925.png"></a></p>
+<p>仅修改 <code>Content-Type</code>，仍报错。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119154103.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119154103.png"></a></p>
+<p>修改文件扩展名为 <code>.jpeg</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119154202.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119154202.png"></a></p>
+<p>提示上传成功。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119154253.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119154253.png"></a></p>
+<p>请求用户头像，<code>/files/avatars/test.jpeg</code>，仅能拿到内容，但无法执行 php 代码，且报头仍是 <code>Content-Type: image/jpeg</code></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119154441.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119154441.png"></a></p>
+<p>审题发现，本题使用黑名单过滤</p>
+<p>使用 <code>.php5</code> 作为扩展名，上传文件，但是也无法执行，只能回显出文件的内容。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119155021.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119155021.png"></a></p>
+<p>上传 <strong><code>.htaccess</code> 文件</strong>，将 <code>.caishao</code> 拓展名映射成 PHP 文件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AddType application/x-httpd-php .caishao</span><br></pre></td></tr></table></figure>
+
+<p>扩展名为 <code>.caishao</code> 的文件都被解析成 php 并执行。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119161914.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119161914.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119160029.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119160029.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119162020.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119162020.png"></a></p>
+<h1 id="5-Lab-Web-shell-upload-via-obfuscated-file-extension"><a href="#5-Lab-Web-shell-upload-via-obfuscated-file-extension" class="headerlink" title="5 Lab: Web shell upload via obfuscated file extension"></a>5 Lab: Web shell upload via obfuscated file extension</h1><p>使用黑名单过滤文件扩展名总有其局限性，这个 lab 可以使用一些经典的绕过方式：双写绕过、大小写绕过、编码、00截断等。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119162951.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119162951.png"></a></p>
+<p>响应提示：”only JPG &amp; PNG files are allowed”，看来不得不使用 <strong>00 截断绕过</strong>了，修改文件名为<code>test.php%00.jpg</code>，根据响应报文，上传后的文件名为 <code>test.php</code>.</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119163139.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119163139.png"></a></p>
+<p>请求我们上传的“头像” <code>/files/avatars/test.php</code>，php 代码执行，拿到 secret.</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119163442.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119163442.png"></a></p>
+<p>如果服务端能执行 <code>.jpg</code> 或 <code>.png</code> 文件的话（文件包含漏洞），好像也可以上传图片马。</p>
+<h1 id="6-Lab-Remote-code-execution-via-polyglot-web-shell-upload"><a href="#6-Lab-Remote-code-execution-via-polyglot-web-shell-upload" class="headerlink" title="6 Lab: Remote code execution via polyglot web shell upload"></a>6 Lab: Remote code execution via polyglot web shell upload</h1><p>不同类型的文件在其文件头&#x2F;尾都包含一些特殊的字节序列，<code>.jpg</code> 图片文件总是以 <code>FF D8 FF</code> 开头，我们可以把一句话木马隐藏到这些文件以绕过检查。写入一句话木马后的图片文件叫做“图片马”。</p>
+<p>图片马制作：</p>
+<ol>
+<li>windows : <code>copy 1.jpg/b+2.php 3.jpg</code></li>
+<li>archlinux:<ol>
+<li><code>exiftool -Comment=&quot;&lt;?php echo file_get_contents(&#39;/home/carlos/secret&#39;); ?&gt;&quot; potato.jpg</code></li>
+<li>使用十六进制编辑器，bless, 01Editor</li>
+</ol>
+</li>
+</ol>
+<p>使用 <code>exiftool</code> 将一句话木马写入一张 jpg 图片文件中。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exiftool -Comment=<span class="string">&quot;&lt;?php echo file_get_contents(&#x27;/home/carlos/secret&#x27;); ?&gt;&quot;</span> potato.jpg</span><br></pre></td></tr></table></figure>
+
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119203002.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119203002.png"></a></p>
+<p>使用 bless 打开 <code>potato.jpg</code> 写入一句话后的文件，可以看到文件以 <code>FF D8 FF</code> 开头，因为是 JPEG 图片文件。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119203206.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119203206.png"></a></p>
+<p>搜索 “php” 找到我们写入的 php 代码，其实也可以直接用 bless 在末尾写入恶意代码。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119203819.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119203819.png"></a></p>
+<blockquote>
+<p>问题<br>burp 抓与头像有关的包时总是卡死，裂开。</p>
+<p>答：报文太长了，头像太大了，电脑太拉了</p>
+</blockquote>
+<p>上传了 <code>potato.jpg</code> 之后，一直没找到 secret，也不知道 php 代码执行没执行，就又做了一个图片马，发现响应报文中，代码被当成文本展示了出来。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119214819.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119214819.png"></a></p>
+<p>通过查资料，图片中的 php 代码要执行的话还需要有文件包含漏洞，即将任意类型的文件当成 php 文件执行。</p>
+<p>&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D; 官方 solution &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exiftool -Comment=<span class="string">&quot;&lt;?php echo &#x27;START&#x27; . file_get_contents(&#x27;/home/carlos/secret&#x27;) . &#x27;END&#x27;; ?&gt;&quot;</span> potato.jpg -o caishao.php</span><br></pre></td></tr></table></figure>
+
+<p>后端只检查了文件头，没有检查拓展名。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119213313.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119213313.png"></a></p>
+<p>上传，并请求“头像”，拿到 secret。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20240119213539.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20240119213539.png"></a></p>
+<p>话说刚刚咋没想到将 <code>exiftool</code> 的输出文件写成 php 呢，我一直想着把我的这两个小土豆<strong>完整且优雅</strong>地上传上去，又能执行藏在里面的一句话木马 emmmm.</p>
+<h1 id="7-Lab-Web-shell-upload-via-race-condition"><a href="#7-Lab-Web-shell-upload-via-race-condition" class="headerlink" title="7 Lab: Web shell upload via race condition"></a>7 Lab: Web shell upload via race condition</h1><p>题目要求获取 <code>/home/carlos/secret</code> 文件的内容，php 指令应为：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> <span class="keyword">echo</span> <span class="title function_ invoke__">file_get_contents</span>(<span class="string">&#x27;/home/carlos/secret&#x27;</span>); <span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>上传之后的文件在 <code>/file/avatars/</code> 目录下，且文件名也没有随机化处理</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20250206170332.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20250206170332.png"></a></p>
+<p>直接修改文件类型上传，报错。只能上传JPG和PNG文件。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20250206170900.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20250206170900.png"></a></p>
+<p>%00截断也不行，解析成了字符串。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20250206171201.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20250206171201.png"></a></p>
+<p>根据题目描述，尝试使用条件竞争上传文件。一开始我以为的竞争窗口是 文件上传和验证。将正常的JPG图片和PHP文件同时上传，类似 limit-overrun。后面发现并不行…</p>
+<p>尝试寻找其它竞争窗口，很多系统在上传文件后会先将文件保存在服务端，验证失败后再删除。但在保存文件和删除文件之间有个时间差（竞争窗口），在这个时间差中访问文件不久能执行了嘛。使用单包攻击并行发送 <code>upload 24.php</code> 和 <code>get 24.php</code> 两报文，访问成功。</p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20250206172330.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20250206172330.png"></a></p>
+<p><a data-fancybox="gallery" data-src="/images/2025/02/08/Pasted_image_20250206172800.png" data-caption=""><img src="/images/2025/02/08/Pasted_image_20250206172800.png"></a></p>
+<p>时隔一年多，终于把最后一个 lab 做了。</p>
+<p>完结撒花</p>
+
+  </div>
+
+  <!-- 版权声明 -->
+  
+
+
+</article>
+
+
+    <div class="blog-post-comments">
+        <div id="utterances_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Lab-Remote-code-execution-via-web-shell-upload"><span class="toc-number">1.</span> <span class="toc-text">1 Lab: Remote code execution via web shell upload</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Lab-Web-shell-upload-via-Content-Type-restriction-bypass"><span class="toc-number">2.</span> <span class="toc-text">2 Lab: Web shell upload via Content-Type restriction bypass</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Lab-Web-shell-upload-via-path-traversal"><span class="toc-number">3.</span> <span class="toc-text">3 Lab: Web shell upload via path traversal</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Lab-Web-shell-upload-via-extension-blacklist-bypass"><span class="toc-number">4.</span> <span class="toc-text">4 Lab: Web shell upload via extension blacklist bypass</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Lab-Web-shell-upload-via-obfuscated-file-extension"><span class="toc-number">5.</span> <span class="toc-text">5 Lab: Web shell upload via obfuscated file extension</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-Lab-Remote-code-execution-via-polyglot-web-shell-upload"><span class="toc-number">6.</span> <span class="toc-text">6 Lab: Remote code execution via polyglot web shell upload</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-Lab-Web-shell-upload-via-race-condition"><span class="toc-number">7.</span> <span class="toc-text">7 Lab: Web shell upload via race condition</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://by-musi.github.io/2025/02/08/PortSwigger_file_upload_labs/&title=PortSwigger file upload labs"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    CaiShao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+      <ul>
+        
+          <span id="busuanzi_container_site_pv">
+              本站总访问量<span id="busuanzi_value_site_pv"></span>次
+          </span>
+          <span class="post-meta-divider"> | </span>
+          <span id="busuanzi_container_site_uv" style='display:none'>
+                本站访客数<span id="busuanzi_value_site_uv"></span>人
+          </span>
+        <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+    <script type="text/javascript">
+      var utterances_repo = 'BY-musi/BY-musi.github.io';
+      var utterances_issue_term = 'pathname';
+      var utterances_label = 'comment';
+      var utterances_theme = 'photon-dark';
+
+      (function(){
+          var script = document.createElement('script');
+
+          script.src = 'https://utteranc.es/client.js';
+          script.setAttribute('repo', utterances_repo);
+          script.setAttribute('issue-term', 'pathname');
+          script.setAttribute('label', utterances_label);
+          script.setAttribute('theme', utterances_theme);
+          script.setAttribute('crossorigin', 'anonymous');
+          script.async = true;
+          (document.getElementById('utterances_thread')).appendChild(script);
+      }());
+  </script>
+
+
+<!-- FancyBox -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+  <script>
+    Fancybox.bind('[data-fancybox="gallery"]', {
+      //
+    });    
+  </script>
+
+
+<!-- Copyright -->
+
+</body>
+</html>
